@@ -42,7 +42,7 @@ Este roadmap é um guia **prático e gratuito** para quem quer se tornar Data En
 
 ### 1. Acesse o Roadmap Interativo
 
-👉 **[gc-data-academy.github.io/roadmap-data-engineering](https://gc-data-academy.github.io/roadmap-data-engineering)**
+👉 **[guicolla.github.io/roadmap-data-eng](https://gc-data-academy.github.io/roadmap-data-eng)**
 
 O roadmap visual mostra todas as fases, projetos, skills e recursos. Você pode marcar projetos como concluídos e acompanhar seu progresso.
 
@@ -112,7 +112,7 @@ Cada `PROMPT.md` contém um prompt otimizado para você colar no ChatGPT ou Clau
 ## 📂 Estrutura do Repositório
 
 ```
-roadmap-data-engineering/
+roadmap-data-eng/
 ├── index.html                          ← Roadmap interativo (GitHub Pages)
 ├── README.md                           ← Você está aqui
 ├── projetos/
