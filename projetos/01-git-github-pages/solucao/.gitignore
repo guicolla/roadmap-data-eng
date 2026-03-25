@@ -1,0 +1,60 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+
+# === Data files (cuidado: nao commitar dados sensiveis) ===
+*.csv
+*.parquet
+*.json
+!dados/*.json
+*.db
+*.sqlite
+*.sqlite3
+
+# === Environment ===
+.env
+.env.local
+.env.*.local
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# === Docker ===
+docker-compose.override.yml
+
+# === Airflow ===
+airflow/logs/
+airflow/plugins/
+
+# === dbt ===
+target/
+dbt_packages/
+logs/
+
+# === Jupyter ===
+.ipynb_checkpoints/
+
+# === OS ===
+.DS_Store
+Thumbs.db

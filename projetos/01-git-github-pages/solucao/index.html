@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Data Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0f0f0f;--surface:#181818;--surface-2:#222;--border:#2a2a2a;
+    --text:#e0e0e0;--text-dim:#999;--text-muted:#666;
+    --accent:#6C9CFC;--accent-dim:rgba(108,156,252,0.15);
+    --green:#4ade80;--yellow:#facc15;
+    --font:'Outfit',sans-serif;--mono:'Fira Code',monospace;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+  nav{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+  nav .inner{max-width:900px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+  nav .name{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  nav .name span{color:var(--accent)}
+  nav .links{display:flex;gap:20px}
+  nav .links a{color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;transition:color 0.2s}
+  nav .links a:hover{color:var(--text)}
+  .hero{max-width:900px;margin:0 auto;padding:80px 24px 60px}
+  .hero .badge{display:inline-block;font-size:12px;font-family:var(--mono);color:var(--accent);background:var(--accent-dim);padding:4px 12px;border-radius:4px;margin-bottom:16px}
+  .hero h1{font-size:clamp(32px,5vw,48px);font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:12px}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{font-size:17px;color:var(--text-dim);max-width:560px;line-height:1.7}
+  .hero .ctas{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .hero .ctas a{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s}
+  .btn-primary{background:var(--accent);color:#000}
+  .btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
+  .btn-secondary{border:1px solid var(--border);color:var(--text-dim)}
+  .btn-secondary:hover{border-color:var(--text-muted);color:var(--text)}
+  section{max-width:900px;margin:0 auto;padding:60px 24px}
+  .section-label{font-size:12px;font-family:var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+  section h2{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:24px}
+  .about-text{font-size:16px;color:var(--text-dim);line-height:1.8;max-width:640px}
+  .skills-grid{display:flex;flex-wrap:wrap;gap:8px}
+  .skill{font-size:13px;font-family:var(--mono);padding:6px 14px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);transition:all 0.2s}
+  .skill:hover{border-color:var(--accent);color:var(--accent)}
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .project-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;transition:all 0.3s;position:relative;overflow:hidden}
+  .project-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+  .project-card.coming-soon{opacity:0.5}
+  .project-card.coming-soon:hover{opacity:0.7;transform:none;border-color:var(--border)}
+  .card-num{font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:8px}
+  .card-title{font-size:16px;font-weight:600;margin-bottom:6px;letter-spacing:-0.3px}
+  .card-desc{font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.5}
+  .card-tags{display:flex;gap:4px;flex-wrap:wrap}
+  .card-tag{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;background:var(--surface-2);color:var(--text-muted)}
+  .card-status{position:absolute;top:16px;right:16px;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px}
+  .status-done{background:rgba(74,222,128,0.15);color:var(--green)}
+  .status-soon{background:rgba(250,204,21,0.15);color:var(--yellow)}
+  .card-link{display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-size:13px;color:var(--accent);text-decoration:none;font-weight:500}
+  .card-link:hover{text-decoration:underline}
+  .contact-links{display:flex;gap:16px;flex-wrap:wrap}
+  .contact-link{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:8px;background:var(--surface);border:1px solid var(--border);text-decoration:none;color:var(--text-dim);font-size:14px;transition:all 0.2s}
+  .contact-link:hover{border-color:var(--accent);color:var(--accent)}
+  footer{border-top:1px solid var(--border);padding:24px;text-align:center}
+  footer p{font-size:12px;color:var(--text-muted)}
+  footer a{color:var(--accent);text-decoration:none}
+  @media(max-width:640px){
+    .hero{padding:48px 20px 40px}
+    section{padding:40px 20px}
+    .projects-grid{grid-template-columns:1fr}
+  }
+  .fade{opacity:0;transform:translateY(16px);transition:all 0.5s ease}
+  .fade.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <div class="name"><span>&gt;</span> seu_nome</div>
+    <div class="links">
+      <a href="#sobre">Sobre</a>
+      <a href="#skills">Skills</a>
+      <a href="#projetos">Projetos</a>
+      <a href="#contato">Contato</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">data engineer em formacao</div>
+  <h1>Oi, eu sou o <em>Seu Nome</em></h1>
+  <p>Estou construindo minha carreira em Data Engineering. Este portfolio documenta minha jornada — cada projeto e uma skill nova aprendida e aplicada na pratica.</p>
+  <div class="ctas">
+    <a href="#projetos" class="btn-primary">Ver Projetos</a>
+    <a href="https://github.com/SEU-USUARIO" target="_blank" class="btn-secondary">GitHub</a>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="section-label">Sobre mim</div>
+  <h2>Quem sou eu</h2>
+  <p class="about-text">Escreva aqui sobre voce. De onde voce vem, qual seu background, por que decidiu entrar em engenharia de dados e o que te motiva. Seja autentico — recrutadores valorizam historia real mais do que buzzwords.</p>
+</section>
+
+<section id="skills">
+  <div class="section-label">Skills</div>
+  <h2>Tecnologias</h2>
+  <div class="skills-grid">
+    <span class="skill">Python</span>
+    <span class="skill">SQL</span>
+    <span class="skill">Git</span>
+    <span class="skill">Linux</span>
+    <span class="skill">Bash</span>
+    <span class="skill">Docker</span>
+    <span class="skill">Airflow</span>
+    <span class="skill">dbt</span>
+    <span class="skill">BigQuery</span>
+    <span class="skill">GCP</span>
+    <span class="skill">Terraform</span>
+    <span class="skill">pandas</span>
+  </div>
+</section>
+
+<section id="projetos">
+  <div class="section-label">Portfolio</div>
+  <h2>Projetos</h2>
+  <div class="projects-grid" id="projectsGrid"></div>
+</section>
+
+<section id="contato">
+  <div class="section-label">Contato</div>
+  <h2>Vamos conversar</h2>
+  <div class="contact-links">
+    <a href="https://linkedin.com/in/SEU-PERFIL" target="_blank" class="contact-link">&#128279; LinkedIn</a>
+    <a href="https://github.com/SEU-USUARIO" target="_blank" class="contact-link">&#128187; GitHub</a>
+    <a href="mailto:seu@email.com" class="contact-link">&#9993; Email</a>
+  </div>
+</section>
+
+<footer>
+  <p>Feito com &#9749; seguindo o <a href="https://gc-data-academy.github.io/roadmap-data-engineering" target="_blank">Roadmap GC Data Academy</a></p>
+</footer>
+
+<script>
+const projects = [
+  { num:"01", title:"Git + GitHub Pages", desc:"Portfolio pessoal com Git e GitHub Pages", tags:["Git","GitHub","HTML"], done:true, link:"#" },
+  { num:"02", title:"Python — ETL de API", desc:"Pipeline ETL extraindo dados de API publica", tags:["Python","pandas","API"], done:false },
+  { num:"03", title:"SQL — Analise de Dados", desc:"Modelagem star schema e queries analiticas", tags:["SQL","SQLite","CTEs"], done:false },
+  { num:"04", title:"Shell — Automacao", desc:"Scripts Bash para automacao de tarefas", tags:["Bash","Shell","cron"], done:false },
+  { num:"05", title:"Linux — Ambiente", desc:"Configuracao de ambiente profissional", tags:["Linux","CLI","SSH"], done:false },
+  { num:"06", title:"Docker — Stack Local", desc:"Ambiente containerizado com Docker Compose", tags:["Docker","Compose"], done:false },
+  { num:"07", title:"Airflow — Primeira DAG", desc:"Orquestracao de pipeline com Airflow", tags:["Airflow","Python","DAGs"], done:false },
+  { num:"08", title:"dbt — Transformacoes", desc:"Transformacao de dados com testes e docs", tags:["dbt","SQL","Testes"], done:false },
+  { num:"09", title:"Pipeline Batch", desc:"Pipeline end-to-end integrando tudo", tags:["E2E","Integracao"], done:false },
+  { num:"10", title:"GCP — BigQuery", desc:"Ingestao e queries otimizadas na nuvem", tags:["BigQuery","GCS","GCP"], done:false },
+  { num:"11", title:"Terraform — IaC", desc:"Infraestrutura como codigo na GCP", tags:["Terraform","IaC","GCP"], done:false },
+  { num:"12", title:"Pipeline Cloud", desc:"Pipeline de producao completo na GCP", tags:["GCP","Composer","dbt"], done:false }
+];
+const grid = document.getElementById('projectsGrid');
+projects.forEach((p,i) => {
+  const card = document.createElement('div');
+  card.className = `project-card fade${p.done ? '' : ' coming-soon'}`;
+  card.style.transitionDelay = `${i*0.05}s`;
+  card.innerHTML = `
+    <span class="card-status ${p.done?'status-done':'status-soon'}">${p.done?'&#10003; Concluido':'&#9203; Em breve'}</span>
+    <div class="card-num">#${p.num}</div>
+    <div class="card-title">${p.title}</div>
+    <div class="card-desc">${p.desc}</div>
+    <div class="card-tags">${p.tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>
+    ${p.done && p.link ? `<a href="${p.link}" class="card-link">Ver demo &#8594;</a>` : ''}
+  `;
+  grid.appendChild(card);
+});
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if(e.isIntersecting) e.target.classList.add('show'); });
+}, {threshold:0.1});
+document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
