@@ -6,7 +6,7 @@
 <h3 align="center">Do Zero ao Pipeline em Produção — 12 Projetos Práticos</h3>
 
 <p align="center">
-  <a href="https://gc-data-academy.github.io/roadmap-data-engineering">
+  <a href="https://guicolla.github.io/roadmap-data-eng">
     <img src="https://img.shields.io/badge/🗺️_Roadmap_Interativo-F5900D?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Roadmap"/>
   </a>
   <img src="https://img.shields.io/badge/Projetos-12-111111?style=for-the-badge" alt="12 projetos"/>
@@ -153,7 +153,7 @@ Este projeto é open source sob a licença [MIT](LICENSE).
 ---
 
 <p align="center">
-  Feito por <a href="https://www.linkedin.com/in/guilherme-colla/">Guilherme Colla</a> — <a href="https://gcdatac.com">GC Data</a>
+  Feito por <a href="https://www.linkedin.com/in/guilhermecolla/">Guilherme Colla</a> — <a href="https://gcdatac.com">GC Data</a>
 </p>
 
 <p align="center">
