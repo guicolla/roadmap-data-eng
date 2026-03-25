@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Contatos — Python | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0b0e11;--surface:#131720;--surface-2:#1a1f2e;--border:#252d3d;
+    --text:#c9d1d9;--text-dim:#8b949e;--text-muted:#484f58;
+    --green:#3fb950;--green-dim:rgba(63,185,80,0.12);
+    --blue:#58a6ff;--blue-dim:rgba(88,166,255,0.12);
+    --red:#f85149;--yellow:#d29922;--purple:#bc8cff;
+    --font:'Outfit',sans-serif;--mono:'Fira Code',monospace;
+  }
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;min-height:100vh}
+  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px}
+  nav .inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+  nav .title{font-family:var(--mono);font-size:14px;font-weight:500}
+  nav .title span{color:var(--green)}
+  nav a{color:var(--text-muted);text-decoration:none;font-size:12px}
+  nav a:hover{color:var(--text)}
+  .hero{max-width:1100px;margin:0 auto;padding:48px 24px 32px}
+  .hero h1{font-size:clamp(24px,4vw,36px);font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+  .hero h1 em{font-style:normal;color:var(--green)}
+  .hero p{color:var(--text-dim);font-size:15px;max-width:600px}
+  .tags{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .tag{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;font-weight:500}
+  .tag-green{background:var(--green-dim);color:var(--green)}
+  .tag-blue{background:var(--blue-dim);color:var(--blue)}
+  .main{max-width:1100px;margin:0 auto;padding:0 24px 48px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:768px){.main{grid-template-columns:1fr}}
+
+  /* TERMINAL */
+  .terminal{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;height:560px}
+  .term-bar{background:var(--surface-2);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0}
+  .term-dot{width:10px;height:10px;border-radius:50%}
+  .term-dot.r{background:var(--red)}.term-dot.y{background:var(--yellow)}.term-dot.g{background:var(--green)}
+  .term-title{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:8px}
+  .term-body{padding:16px;font-family:var(--mono);font-size:12px;line-height:1.8;flex:1;overflow-y:auto}
+  .term-body::-webkit-scrollbar{width:4px}
+  .term-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .term-line{margin-bottom:1px}
+  .t-green{color:var(--green)}.t-blue{color:var(--blue)}.t-red{color:var(--red)}.t-dim{color:var(--text-dim)}.t-yellow{color:var(--yellow)}.t-purple{color:var(--purple)}
+
+  /* INPUT AREA */
+  .term-input-area{border-top:1px solid var(--border);padding:10px 16px;background:var(--surface-2);flex-shrink:0}
+  .term-input-row{display:flex;align-items:center;gap:8px}
+  .term-input-label{font-family:var(--mono);font-size:12px;color:var(--green);white-space:nowrap}
+  .term-input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+  .term-input::placeholder{color:var(--text-muted)}
+
+  /* MENU BUTTONS */
+  .menu-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface-2);flex-shrink:0}
+  .menu-btn{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px 10px;color:var(--text-dim);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all 0.2s;text-align:center}
+  .menu-btn:hover{border-color:var(--green);color:var(--green)}
+  .menu-btn.active{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+  .menu-btn:disabled{opacity:0.3;cursor:default}
+  .menu-btn:disabled:hover{border-color:var(--border);color:var(--text-dim)}
+
+  /* CODE PANEL */
+  .code-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;height:560px}
+  .code-bar{background:var(--surface-2);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0}
+  .code-filename{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+  .code-body{padding:16px;font-family:var(--mono);font-size:11.5px;line-height:1.8;flex:1;overflow-y:auto;color:var(--text-dim)}
+  .code-body::-webkit-scrollbar{width:4px}
+  .code-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .kw{color:var(--purple)}.fn{color:var(--blue)}.st{color:var(--green)}.cm{color:var(--text-muted)}.num{color:var(--yellow)}
+
+  /* ABOUT */
+  .about{max-width:1100px;margin:0 auto;padding:0 24px 48px}
+  .about h2{font-size:22px;font-weight:700;margin-bottom:16px}
+  .about p{color:var(--text-dim);font-size:14px;line-height:1.8;max-width:700px}
+  .skills-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .skill-item{font-size:12px;font-family:var(--mono);padding:4px 12px;border-radius:4px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim)}
+  footer{border-top:1px solid var(--border);padding:24px;text-align:center}
+  footer p{font-size:12px;color:var(--text-muted)}
+  footer a{color:var(--green);text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav><div class="inner">
+  <div class="title"><span>02</span> Agenda de Contatos</div>
+  <div style="display:flex;gap:16px">
+    <a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/02-python-agenda-contatos" target="_blank">GitHub</a>
+    <a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+  <h1>Agenda de Contatos em <em>Python</em></h1>
+  <p>CRUD completo no terminal com persistencia em JSON. Experimente abaixo — adicione, busque e remova contatos em tempo real.</p>
+  <div class="tags">
+    <span class="tag tag-green">Python</span>
+    <span class="tag tag-blue">JSON</span>
+    <span class="tag tag-green">CRUD</span>
+    <span class="tag tag-blue">CLI</span>
+  </div>
+</section>
+
+<div class="main">
+  <div class="terminal">
+    <div class="term-bar">
+      <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+      <span class="term-title">python3 agenda.py</span>
+    </div>
+    <div class="term-body" id="termBody"></div>
+    <div class="term-input-area" id="inputArea" style="display:none">
+      <div class="term-input-row">
+        <span class="term-input-label" id="inputLabel">&gt;</span>
+        <input type="text" class="term-input" id="termInput" placeholder="Digite aqui..." autocomplete="off">
+      </div>
+    </div>
+    <div class="menu-btns" id="menuBtns"></div>
+  </div>
+
+  <div class="code-panel">
+    <div class="code-bar"><span class="code-filename" id="codeFilename">agenda.py — main()</span></div>
+    <div class="code-body" id="codeBody"></div>
+  </div>
+</div>
+
+<section class="about">
+  <h2>O que aprendi</h2>
+  <p>Neste projeto pratiquei os fundamentos de Python construindo algo funcional do zero. Cada funcionalidade da agenda ensina um conceito diferente da linguagem.</p>
+  <div class="skills-list">
+    <span class="skill-item">Variaveis e tipos</span>
+    <span class="skill-item">Dicionarios</span>
+    <span class="skill-item">Listas</span>
+    <span class="skill-item">Funcoes</span>
+    <span class="skill-item">While / For loops</span>
+    <span class="skill-item">If / Elif / Else</span>
+    <span class="skill-item">Input / Output</span>
+    <span class="skill-item">Leitura de arquivos</span>
+    <span class="skill-item">JSON</span>
+    <span class="skill-item">Validacao de dados</span>
+    <span class="skill-item">String formatting</span>
+    <span class="skill-item">List comprehension</span>
+  </div>
+</section>
+
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+
+<script>
+let contatos = [
+  {nome:"Maria Silva",telefone:"11999887766",email:"maria.silva@email.com"},
+  {nome:"Joao Santos",telefone:"21988776655",email:"joao.santos@email.com"},
+  {nome:"Ana Costa",telefone:"31977665544",email:"ana.costa@email.com"},
+  {nome:"Pedro Oliveira",telefone:"41966554433",email:"pedro@email.com"},
+  {nome:"Carla Mendes",telefone:"51955443322",email:"carla.mendes@email.com"}
+];
+
+const codeSamples = {
+  menu: `<span class="kw">def</span> <span class="fn">main</span>():
+    contatos = <span class="fn">carregar_contatos</span>()
+    
+    <span class="kw">while</span> <span class="num">True</span>:
+        <span class="fn">exibir_menu</span>()
+        opcao = <span class="fn">input</span>(<span class="st">"Opcao: "</span>)
+        
+        <span class="kw">if</span> opcao == <span class="st">"1"</span>:
+            <span class="fn">adicionar_contato</span>(contatos)
+        <span class="kw">elif</span> opcao == <span class="st">"2"</span>:
+            <span class="fn">listar_contatos</span>(contatos)
+        <span class="kw">elif</span> opcao == <span class="st">"3"</span>:
+            <span class="fn">buscar_contato</span>(contatos)
+        <span class="kw">elif</span> opcao == <span class="st">"5"</span>:
+            <span class="fn">remover_contato</span>(contatos)
+        <span class="kw">elif</span> opcao == <span class="st">"0"</span>:
+            <span class="kw">break</span>`,
+  adicionar: `<span class="kw">def</span> <span class="fn">adicionar_contato</span>(contatos):
+    nome = <span class="fn">input</span>(<span class="st">"Nome: "</span>).strip()
+    <span class="kw">if not</span> nome:
+        <span class="fn">print</span>(<span class="st">"Erro: nome vazio"</span>)
+        <span class="kw">return</span>
+    
+    <span class="cm"># Verificar duplicata</span>
+    <span class="kw">for</span> c <span class="kw">in</span> contatos:
+        <span class="kw">if</span> c[<span class="st">"nome"</span>].lower() == nome.lower():
+            <span class="fn">print</span>(<span class="st">"Erro: ja existe"</span>)
+            <span class="kw">return</span>
+    
+    telefone = <span class="fn">input</span>(<span class="st">"Telefone: "</span>).strip()
+    email = <span class="fn">input</span>(<span class="st">"Email: "</span>).strip()
+    
+    <span class="kw">if</span> email <span class="kw">and</span> <span class="st">"@"</span> <span class="kw">not in</span> email:
+        <span class="fn">print</span>(<span class="st">"Email invalido!"</span>)
+        <span class="kw">return</span>
+    
+    contatos.<span class="fn">append</span>({
+        <span class="st">"nome"</span>: nome,
+        <span class="st">"telefone"</span>: telefone,
+        <span class="st">"email"</span>: email <span class="kw">or</span> <span class="st">"N/A"</span>
+    })
+    <span class="fn">salvar_contatos</span>(contatos)`,
+  listar: `<span class="kw">def</span> <span class="fn">listar_contatos</span>(contatos):
+    <span class="kw">if not</span> contatos:
+        <span class="fn">print</span>(<span class="st">"Nenhum contato."</span>)
+        <span class="kw">return</span>
+    
+    <span class="fn">print</span>(<span class="st">f"{'#':<4} {'Nome':<20} {'Tel':<15}"</span>)
+    <span class="fn">print</span>(<span class="st">"-"</span> * <span class="num">40</span>)
+    
+    <span class="kw">for</span> i, c <span class="kw">in</span> <span class="fn">enumerate</span>(contatos, <span class="num">1</span>):
+        <span class="fn">print</span>(
+            <span class="st">f"{i:<4} {c['nome']:<20}"</span>
+            <span class="st">f"{c['telefone']:<15}"</span>
+        )
+    
+    <span class="fn">print</span>(<span class="st">f"Total: {<span class="fn">len</span>(contatos)}"</span>)`,
+  buscar: `<span class="kw">def</span> <span class="fn">buscar_contato</span>(contatos):
+    termo = <span class="fn">input</span>(<span class="st">"Nome: "</span>).strip().lower()
+    
+    resultados = [
+        c <span class="kw">for</span> c <span class="kw">in</span> contatos
+        <span class="kw">if</span> termo <span class="kw">in</span> c[<span class="st">"nome"</span>].lower()
+    ]
+    
+    <span class="kw">if not</span> resultados:
+        <span class="fn">print</span>(<span class="st">"Nenhum resultado"</span>)
+        <span class="kw">return</span>
+    
+    <span class="kw">for</span> c <span class="kw">in</span> resultados:
+        <span class="fn">print</span>(<span class="st">f"Nome: {c['nome']}"</span>)
+        <span class="fn">print</span>(<span class="st">f"Tel:  {c['telefone']}"</span>)
+        <span class="fn">print</span>(<span class="st">f"Email:{c['email']}"</span>)`,
+  remover: `<span class="kw">def</span> <span class="fn">remover_contato</span>(contatos):
+    nome = <span class="fn">input</span>(<span class="st">"Nome: "</span>).strip().lower()
+    
+    <span class="kw">for</span> i, c <span class="kw">in</span> <span class="fn">enumerate</span>(contatos):
+        <span class="kw">if</span> c[<span class="st">"nome"</span>].lower() == nome:
+            conf = <span class="fn">input</span>(<span class="st">"Confirma? (s/n): "</span>)
+            <span class="kw">if</span> conf == <span class="st">"s"</span>:
+                contatos.<span class="fn">pop</span>(i)
+                <span class="fn">salvar_contatos</span>(contatos)
+                <span class="fn">print</span>(<span class="st">"Removido!"</span>)
+            <span class="kw">return</span>
+    
+    <span class="fn">print</span>(<span class="st">"Nao encontrado."</span>)`
+};
+
+const term = document.getElementById('termBody');
+const inputArea = document.getElementById('inputArea');
+const inputEl = document.getElementById('termInput');
+const inputLabel = document.getElementById('inputLabel');
+const codeBody = document.getElementById('codeBody');
+const codeFilename = document.getElementById('codeFilename');
+const menuContainer = document.getElementById('menuBtns');
+let currentFlow = null;
+let flowStep = 0;
+let flowData = {};
+
+function addLine(html) {
+  const d = document.createElement('div');
+  d.className = 'term-line';
+  d.innerHTML = html;
+  term.appendChild(d);
+  term.scrollTop = term.scrollHeight;
+}
+
+function showCode(key, label) {
+  codeBody.innerHTML = codeSamples[key];
+  codeFilename.textContent = `agenda.py — ${label}`;
+}
+
+function showMenu() {
+  addLine('');
+  addLine('<span class="t-blue">+------------------------------+</span>');
+  addLine('<span class="t-blue">|</span>     <span class="t-green">AGENDA DE CONTATOS</span>     <span class="t-blue">|</span>');
+  addLine('<span class="t-blue">+------------------------------+</span>');
+  addLine('<span class="t-blue">|</span>  1. Adicionar   4. Editar   <span class="t-blue">|</span>');
+  addLine('<span class="t-blue">|</span>  2. Listar       5. Remover  <span class="t-blue">|</span>');
+  addLine('<span class="t-blue">|</span>  3. Buscar       0. Sair     <span class="t-blue">|</span>');
+  addLine('<span class="t-blue">+------------------------------+</span>');
+}
+
+function showInput(label, placeholder) {
+  inputArea.style.display = 'block';
+  inputLabel.textContent = label;
+  inputEl.placeholder = placeholder || '';
+  inputEl.value = '';
+  inputEl.focus();
+  setMenuEnabled(false);
+}
+
+function hideInput() {
+  inputArea.style.display = 'none';
+  setMenuEnabled(true);
+}
+
+function setMenuEnabled(enabled) {
+  document.querySelectorAll('.menu-btn').forEach(b => b.disabled = !enabled);
+}
+
+// === FLOWS ===
+
+function startAdicionar() {
+  showCode('adicionar', 'adicionar_contato()');
+  addLine('');
+  addLine('<span class="t-dim">--- Adicionar Contato ---</span>');
+  currentFlow = 'adicionar';
+  flowStep = 0;
+  flowData = {};
+  showInput('Nome:', 'Digite o nome do contato');
+}
+
+function startListar() {
+  showCode('listar', 'listar_contatos()');
+  addLine('');
+  addLine('<span class="t-dim">--- Lista de Contatos ---</span>');
+  if (!contatos.length) {
+    addLine('<span class="t-yellow">Nenhum contato cadastrado.</span>');
+  } else {
+    addLine(`<span class="t-dim">${'#'.padEnd(4)}${'Nome'.padEnd(20)}${'Telefone'.padEnd(15)}Email</span>`);
+    addLine('<span class="t-dim">' + '-'.repeat(58) + '</span>');
+    contatos.forEach((c, i) => {
+      addLine(`<span class="t-dim">${String(i+1).padEnd(4)}</span>${c.nome.padEnd(20)}<span class="t-dim">${c.telefone.padEnd(15)}${c.email}</span>`);
+    });
+    addLine(`<span class="t-dim">\nTotal: ${contatos.length} contato(s)</span>`);
+  }
+  showMenu();
+}
+
+function startBuscar() {
+  showCode('buscar', 'buscar_contato()');
+  addLine('');
+  addLine('<span class="t-dim">--- Buscar Contato ---</span>');
+  currentFlow = 'buscar';
+  flowStep = 0;
+  showInput('Buscar:', 'Digite o nome (ou parte)');
+}
+
+function startRemover() {
+  showCode('remover', 'remover_contato()');
+  addLine('');
+  addLine('<span class="t-dim">--- Remover Contato ---</span>');
+  if (!contatos.length) {
+    addLine('<span class="t-yellow">Nenhum contato para remover.</span>');
+    showMenu();
+    return;
+  }
+  currentFlow = 'remover';
+  flowStep = 0;
+  showInput('Nome:', 'Nome do contato a remover');
+}
+
+// === INPUT HANDLER ===
+inputEl.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  const val = inputEl.value.trim();
+
+  if (currentFlow === 'adicionar') {
+    if (flowStep === 0) {
+      if (!val) { addLine('<span class="t-red">Erro: nome nao pode ser vazio.</span>'); inputEl.value=''; return; }
+      if (contatos.some(c => c.nome.toLowerCase() === val.toLowerCase())) {
+        addLine(`<span class="t-green">Nome:</span> ${val}`);
+        addLine(`<span class="t-red">Erro: contato '${val}' ja existe.</span>`);
+        hideInput(); currentFlow=null; showMenu(); return;
+      }
+      flowData.nome = val;
+      addLine(`<span class="t-green">Nome:</span> ${val}`);
+      flowStep = 1;
+      showInput('Telefone:', 'Ex: 11999887766');
+    } else if (flowStep === 1) {
+      if (!val) { addLine('<span class="t-red">Erro: telefone nao pode ser vazio.</span>'); inputEl.value=''; return; }
+      flowData.telefone = val;
+      addLine(`<span class="t-green">Telefone:</span> ${val}`);
+      flowStep = 2;
+      showInput('Email:', 'Ex: nome@email.com (ou Enter pra pular)');
+    } else if (flowStep === 2) {
+      if (val && !val.includes('@')) {
+        addLine(`<span class="t-green">Email:</span> ${val}`);
+        addLine('<span class="t-red">Erro: email invalido (precisa ter @).</span>');
+        hideInput(); currentFlow=null; showMenu(); return;
+      }
+      flowData.email = val || 'N/A';
+      addLine(`<span class="t-green">Email:</span> ${flowData.email}`);
+      contatos.push({nome: flowData.nome, telefone: flowData.telefone, email: flowData.email});
+      addLine(`<span class="t-green">✅ Contato '${flowData.nome}' adicionado com sucesso!</span>`);
+      hideInput(); currentFlow=null; showMenu();
+    }
+  }
+
+  else if (currentFlow === 'buscar') {
+    if (!val) { addLine('<span class="t-red">Erro: digite algo para buscar.</span>'); inputEl.value=''; return; }
+    addLine(`<span class="t-green">Buscar:</span> ${val}`);
+    const res = contatos.filter(c => c.nome.toLowerCase().includes(val.toLowerCase()));
+    if (!res.length) {
+      addLine(`<span class="t-yellow">Nenhum resultado para '${val}'.</span>`);
+    } else {
+      addLine(`<span class="t-dim">\n${res.length} resultado(s):\n</span>`);
+      res.forEach(c => {
+        addLine(`  <span class="t-dim">Nome:</span>     ${c.nome}`);
+        addLine(`  <span class="t-dim">Telefone:</span> ${c.telefone}`);
+        addLine(`  <span class="t-dim">Email:</span>    ${c.email}`);
+        addLine('');
+      });
+    }
+    hideInput(); currentFlow=null; showMenu();
+  }
+
+  else if (currentFlow === 'remover') {
+    if (flowStep === 0) {
+      if (!val) { addLine('<span class="t-red">Erro: digite um nome.</span>'); inputEl.value=''; return; }
+      addLine(`<span class="t-green">Nome:</span> ${val}`);
+      const idx = contatos.findIndex(c => c.nome.toLowerCase() === val.toLowerCase());
+      if (idx === -1) {
+        addLine(`<span class="t-red">Contato '${val}' nao encontrado.</span>`);
+        hideInput(); currentFlow=null; showMenu(); return;
+      }
+      flowData.idx = idx;
+      flowData.nome = contatos[idx].nome;
+      flowStep = 1;
+      showInput(`Remover '${flowData.nome}'? (s/n):`, 's ou n');
+    } else if (flowStep === 1) {
+      addLine(`<span class="t-green">Confirma:</span> ${val}`);
+      if (val.toLowerCase() === 's') {
+        contatos.splice(flowData.idx, 1);
+        addLine(`<span class="t-green">🗑️ Contato '${flowData.nome}' removido.</span>`);
+      } else {
+        addLine('<span class="t-dim">Operacao cancelada.</span>');
+      }
+      hideInput(); currentFlow=null; showMenu();
+    }
+  }
+});
+
+// Menu buttons
+const actions = [
+  {label:"Adicionar", fn: startAdicionar},
+  {label:"Listar", fn: startListar},
+  {label:"Buscar", fn: startBuscar},
+  {label:"Remover", fn: startRemover},
+];
+actions.forEach(a => {
+  const btn = document.createElement('button');
+  btn.className = 'menu-btn';
+  btn.textContent = a.label;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    a.fn();
+  });
+  menuContainer.appendChild(btn);
+});
+
+// Init
+addLine('<span class="t-green">🚀 Agenda iniciada! 5 contato(s) carregado(s).</span>');
+addLine('<span class="t-dim">Clique numa opcao abaixo para interagir.</span>');
+showMenu();
+showCode('menu', 'main()');
+</script>
+</body>
+</html>

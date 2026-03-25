@@ -1,0 +1,27 @@
+[
+  {
+    "nome": "Maria Silva",
+    "telefone": "11999887766",
+    "email": "maria.silva@email.com"
+  },
+  {
+    "nome": "João Santos",
+    "telefone": "21988776655",
+    "email": "joao.santos@email.com"
+  },
+  {
+    "nome": "Ana Costa",
+    "telefone": "31977665544",
+    "email": "ana.costa@email.com"
+  },
+  {
+    "nome": "Pedro Oliveira",
+    "telefone": "41966554433",
+    "email": "pedro@email.com"
+  },
+  {
+    "nome": "Carla Mendes",
+    "telefone": "51955443322",
+    "email": "carla.mendes@email.com"
+  }
+]
