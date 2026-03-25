@@ -92,4 +92,4 @@ Acesse o [Roadmap Interativo](https://guicolla.github.io/roadmap-data-eng) e cli
 
 ---
 
-Feito com ☕ por [GC Data Academy](https://gc-data-academy.github.io/roadmap-data-engineering)
+Feito com ☕ por [GC Data Academy](https://academy.gcdatac.com)
