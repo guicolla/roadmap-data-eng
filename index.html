@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap Data Engineering — GC Data Academy</title>
+<meta name="description" content="Roadmap completo e gratuito para se tornar Data Engineer. 12 projetos práticos com código, do zero ao pipeline em produção.">
+<meta name="author" content="GC Data Academy">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0a;
+    --surface:#111111;
+    --surface-2:#1a1a1a;
+    --surface-3:#222222;
+    --border:#2a2a2a;
+    --border-light:#333;
+    --text:#e8e8e8;
+    --text-dim:#888;
+    --text-muted:#555;
+    --accent:#F5900D;
+    --accent-dim:#F5900D33;
+    --accent-glow:#F5900D22;
+    --phase1:#3B82F6;
+    --phase1-dim:#3B82F622;
+    --phase2:#8B5CF6;
+    --phase2-dim:#8B5CF622;
+    --phase3:#10B981;
+    --phase3-dim:#10B98122;
+    --green:#22c55e;
+    --font:'Space Grotesk',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;overflow-x:hidden}
+  
+  /* === NOISE TEXTURE === */
+  body::before{
+    content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:9999;opacity:0.4;
+  }
+  
+  /* === SCROLLBAR === */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+  /* === HEADER === */
+  .header{
+    position:sticky;top:0;z-index:100;
+    background:var(--bg);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+  }
+  .header-inner{
+    max-width:1200px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo-mark{
+    width:36px;height:36px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),#e07800);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;font-size:14px;color:#000;
+  }
+  .logo-text{font-weight:600;font-size:15px;color:var(--text);letter-spacing:-0.3px}
+  .logo-text span{color:var(--accent)}
+  .header-links{display:flex;align-items:center;gap:20px}
+  .header-links a{
+    color:var(--text-dim);text-decoration:none;font-size:13px;font-weight:500;
+    transition:color 0.2s;
+  }
+  .header-links a:hover{color:var(--text)}
+  .cta-btn{
+    background:var(--accent);color:#000;padding:8px 16px;border-radius:6px;
+    font-size:13px;font-weight:600;text-decoration:none;
+    transition:all 0.2s;border:none;cursor:pointer;font-family:var(--font);
+  }
+  .cta-btn:hover{background:#e08500;transform:translateY(-1px)}
+
+  /* === HERO === */
+  .hero{
+    max-width:1200px;margin:0 auto;padding:80px 24px 60px;
+    text-align:center;position:relative;
+  }
+  .hero::before{
+    content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);
+    width:600px;height:600px;
+    background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface-2);border:1px solid var(--border);
+    padding:6px 14px;border-radius:20px;font-size:12px;color:var(--text-dim);
+    margin-bottom:24px;font-weight:500;
+  }
+  .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .hero h1{
+    font-size:clamp(36px,5vw,56px);font-weight:700;
+    letter-spacing:-2px;line-height:1.1;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,var(--text-dim) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(135deg,var(--accent),#ffb347);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p{
+    font-size:clamp(16px,2vw,19px);color:var(--text-dim);max-width:640px;
+    margin:0 auto 32px;line-height:1.7;font-weight:400;
+  }
+  .hero-stats{
+    display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
+    margin-bottom:40px;
+  }
+  .hero-stat{text-align:center}
+  .hero-stat .num{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono)}
+  .hero-stat .label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+  /* === PROGRESS BAR GLOBAL === */
+  .progress-global{
+    max-width:1200px;margin:0 auto 60px;padding:0 24px;
+  }
+  .progress-global-bar{
+    background:var(--surface-2);border-radius:8px;height:8px;overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-global-fill{
+    height:100%;border-radius:8px;
+    background:linear-gradient(90deg,var(--phase1),var(--phase2),var(--phase3));
+    transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+    width:0%;
+  }
+  .progress-global-label{
+    display:flex;justify-content:space-between;margin-top:8px;
+    font-size:12px;color:var(--text-muted);font-family:var(--mono);
+  }
+
+  /* === PHASE SECTIONS === */
+  .phase{
+    max-width:1200px;margin:0 auto 80px;padding:0 24px;
+  }
+  .phase-header{
+    display:flex;align-items:center;gap:16px;margin-bottom:32px;
+    padding-bottom:16px;border-bottom:1px solid var(--border);
+  }
+  .phase-number{
+    font-family:var(--mono);font-size:12px;font-weight:600;
+    padding:4px 10px;border-radius:4px;letter-spacing:1px;
+  }
+  .phase-1 .phase-number{background:var(--phase1-dim);color:var(--phase1)}
+  .phase-2 .phase-number{background:var(--phase2-dim);color:var(--phase2)}
+  .phase-3 .phase-number{background:var(--phase3-dim);color:var(--phase3)}
+  .phase-title{font-size:24px;font-weight:700;letter-spacing:-0.5px}
+  .phase-duration{font-size:13px;color:var(--text-muted);margin-left:auto;font-family:var(--mono)}
+
+  /* === PROJECT CARDS === */
+  .projects-grid{
+    display:grid;grid-template-columns:1fr;gap:12px;
+  }
+  .project-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;overflow:hidden;
+    transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+    cursor:pointer;position:relative;
+  }
+  .project-card:hover{
+    border-color:var(--border-light);
+    transform:translateY(-2px);
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+  }
+  .project-card.completed{border-color:var(--green)44}
+  .project-card.completed .card-check{color:var(--green)}
+  
+  .card-main{
+    display:flex;align-items:center;gap:16px;padding:20px 24px;
+  }
+  .card-number{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    color:var(--text-muted);min-width:32px;
+  }
+  .card-check{
+    width:22px;height:22px;border-radius:6px;
+    border:2px solid var(--border-light);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:transparent;transition:all 0.2s;
+    flex-shrink:0;
+  }
+  .card-check:hover{border-color:var(--accent)}
+  .project-card.completed .card-check{
+    background:var(--green)22;border-color:var(--green);color:var(--green);
+  }
+  .card-info{flex:1;min-width:0}
+  .card-title{font-size:15px;font-weight:600;letter-spacing:-0.3px;margin-bottom:2px}
+  .card-desc{font-size:13px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-tags{
+    display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;flex-shrink:0;
+  }
+  .card-tag{
+    font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:4px;
+    background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .card-arrow{
+    color:var(--text-muted);font-size:18px;transition:all 0.2s;flex-shrink:0;
+    margin-left:8px;
+  }
+  .project-card:hover .card-arrow{color:var(--accent);transform:translateX(2px)}
+
+  /* === EXPANDED CARD DETAIL === */
+  .card-detail{
+    max-height:0;overflow:hidden;
+    transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+    border-top:0px solid transparent;
+  }
+  .project-card.expanded .card-detail{
+    max-height:1200px;
+    border-top:1px solid var(--border);
+  }
+  .card-detail-inner{padding:24px}
+  .detail-section{margin-bottom:20px}
+  .detail-section:last-child{margin-bottom:0}
+  .detail-label{
+    font-size:11px;font-weight:600;text-transform:uppercase;
+    letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;
+  }
+  .detail-text{font-size:14px;color:var(--text-dim);line-height:1.7}
+  .detail-skills{display:flex;gap:6px;flex-wrap:wrap}
+  .detail-skill{
+    font-size:12px;font-family:var(--mono);padding:4px 10px;border-radius:4px;
+    border:1px solid var(--border);color:var(--text-dim);
+  }
+  .phase-1 .detail-skill{border-color:var(--phase1)44;color:var(--phase1);background:var(--phase1-dim)}
+  .phase-2 .detail-skill{border-color:var(--phase2)44;color:var(--phase2);background:var(--phase2-dim)}
+  .phase-3 .detail-skill{border-color:var(--phase3)44;color:var(--phase3);background:var(--phase3-dim)}
+  
+  .detail-deliverable{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    padding:16px;display:flex;align-items:flex-start;gap:12px;
+  }
+  .detail-deliverable .icon{font-size:20px;flex-shrink:0;margin-top:2px}
+  .detail-deliverable p{font-size:13px;color:var(--text-dim);line-height:1.6}
+  
+  .detail-links{display:flex;gap:8px;flex-wrap:wrap}
+  .detail-link{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:13px;font-weight:500;padding:8px 14px;border-radius:6px;
+    text-decoration:none;transition:all 0.2s;
+    border:1px solid var(--border);color:var(--text-dim);
+    background:var(--surface-2);
+  }
+  .detail-link:hover{border-color:var(--accent);color:var(--accent)}
+  .detail-link.primary{
+    background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;
+  }
+  .detail-link.primary:hover{background:#e08500}
+
+  /* === TIMELINE CONNECTOR === */
+  .timeline-connector{
+    width:2px;height:24px;margin:0 auto;
+    background:linear-gradient(to bottom,var(--border),transparent);
+  }
+
+  /* === CTA BOTTOM === */
+  .cta-section{
+    max-width:800px;margin:40px auto 80px;padding:0 24px;
+  }
+  .cta-box{
+    background:linear-gradient(135deg,var(--surface) 0%,var(--surface-2) 100%);
+    border:1px solid var(--border);border-radius:16px;
+    padding:48px;text-align:center;position:relative;overflow:hidden;
+  }
+  .cta-box::before{
+    content:'';position:absolute;top:-50%;right:-20%;
+    width:300px;height:300px;
+    background:radial-gradient(circle,var(--accent-glow),transparent 70%);
+    pointer-events:none;
+  }
+  .cta-box h2{font-size:24px;font-weight:700;margin-bottom:12px;letter-spacing:-0.5px}
+  .cta-box p{font-size:15px;color:var(--text-dim);margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto}
+  
+  /* === FOOTER === */
+  .footer{
+    border-top:1px solid var(--border);
+    padding:32px 24px;text-align:center;
+  }
+  .footer p{font-size:13px;color:var(--text-muted)}
+  .footer a{color:var(--accent);text-decoration:none}
+  .footer a:hover{text-decoration:underline}
+
+  /* === MOBILE === */
+  @media(max-width:768px){
+    .hero{padding:48px 20px 40px}
+    .hero-stats{gap:24px}
+    .card-main{padding:16px;gap:12px}
+    .card-tags{display:none}
+    .phase-header{flex-wrap:wrap;gap:10px}
+    .phase-duration{margin-left:0}
+    .card-detail-inner{padding:16px}
+    .cta-box{padding:32px 20px}
+    .header-links .hide-mobile{display:none}
+  }
+  @media(max-width:480px){
+    .hero h1{font-size:30px;letter-spacing:-1px}
+    .hero-stat .num{font-size:22px}
+  }
+
+
+  .detail-resources{display:flex;flex-direction:column;gap:6px}
+  .resource-item{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;padding:6px 10px;border-radius:6px;
+    background:var(--surface-2);border:1px solid var(--border);
+    text-decoration:none;color:var(--text-dim);transition:all 0.2s;
+  }
+  .resource-item:hover{border-color:var(--accent);color:var(--accent)}
+  .resource-type{
+    font-size:10px;font-family:var(--mono);font-weight:600;
+    padding:2px 6px;border-radius:3px;text-transform:uppercase;
+    flex-shrink:0;
+  }
+  .resource-type.doc{background:#3B82F622;color:#3B82F6}
+  .resource-type.video{background:#EF444422;color:#EF4444}
+
+  /* === ANIMATIONS === */
+  .fade-in{opacity:0;transform:translateY(20px);transition:all 0.6s cubic-bezier(0.4,0,0.2,1)}
+  .fade-in.visible{opacity:1;transform:translateY(0)}
+  .stagger-1{transition-delay:0.05s}
+  .stagger-2{transition-delay:0.1s}
+  .stagger-3{transition-delay:0.15s}
+  .stagger-4{transition-delay:0.2s}
+  .stagger-5{transition-delay:0.25s}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">GC</div>
+      <div class="logo-text"><span>GC Data</span> Academy</div>
+    </a>
+    <div class="header-links">
+      <a href="#fase-1" class="hide-mobile">Fundamentos</a>
+      <a href="#fase-2" class="hide-mobile">Core DE</a>
+      <a href="#fase-3" class="hide-mobile">Cloud</a>
+      <a href="https://github.com/gc-data-academy/roadmap-data-engineering" target="_blank" class="hide-mobile">GitHub</a>
+      <a href="#cta" class="cta-btn">Entrar na Academy</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Gratuito e open source
+  </div>
+  <h1>Roadmap <em>Data Engineering</em><br>Do Zero ao Pipeline</h1>
+  <p>12 projetos praticos com codigo preto para voce construir um portfolio real de Data Engineer. Cada projeto gera uma GitHub Pages interativa no seu perfil.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">12</div>
+      <div class="label">Projetos</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">3</div>
+      <div class="label">Fases</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">~6</div>
+      <div class="label">Meses</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num" id="completedCount">0</div>
+      <div class="label">Concluidos</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRESS GLOBAL -->
+<div class="progress-global">
+  <div class="progress-global-bar">
+    <div class="progress-global-fill" id="globalProgress"></div>
+  </div>
+  <div class="progress-global-label">
+    <span>Seu progresso</span>
+    <span id="progressPercent">0%</span>
+  </div>
+</div>
+
+<!-- FASE 1 -->
+<section class="phase phase-1 fade-in" id="fase-1">
+  <div class="phase-header">
+    <span class="phase-number">FASE 01</span>
+    <h2 class="phase-title">Fundamentos</h2>
+    <span class="phase-duration">~2 meses</span>
+  </div>
+  <div class="projects-grid" id="phase1-grid"></div>
+</section>
+
+<!-- FASE 2 -->
+<section class="phase phase-2 fade-in" id="fase-2">
+  <div class="phase-header">
+    <span class="phase-number">FASE 02</span>
+    <h2 class="phase-title">Core Data Engineering</h2>
+    <span class="phase-duration">~2 meses</span>
+  </div>
+  <div class="projects-grid" id="phase2-grid"></div>
+</section>
+
+<!-- FASE 3 -->
+<section class="phase phase-3 fade-in" id="fase-3">
+  <div class="phase-header">
+    <span class="phase-number">FASE 03</span>
+    <h2 class="phase-title">Cloud &amp; Producao</h2>
+    <span class="phase-duration">~2 meses</span>
+  </div>
+  <div class="projects-grid" id="phase3-grid"></div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-box fade-in">
+    <h2>Quer ir alem do roadmap?</h2>
+    <p>Na GC Data Academy voce pratica com desafios semanais, recebe feedback e compete no ranking com outros engenheiros de dados.</p>
+    <a href="#" class="cta-btn" style="padding:12px 28px;font-size:15px">Conhecer a Academy</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>Feito por <a href="https://www.linkedin.com/in/guilherme-colla/" target="_blank">Guilherme Colla</a> &mdash; <a href="https://gcdatac.com" target="_blank">GC Data</a> &copy; 2025</p>
+</footer>
+
+<script>
+// === PROJECT DATA ===
+const projects = [
+  {
+    id: 1, phase: 1, num: "01",
+    title: "Git + GitHub Pages",
+    desc: "Configure seu portfolio e publique sua primeira pagina",
+    skills: ["Git", "GitHub", "HTML", "Prompt IA"],
+    detail: "Primeiro passo: criar seu repositorio, entender Git (clone, commit, push, branch) e publicar uma GitHub Pages que sera a vitrine de todos os seus projetos. Voce vai usar um prompt de IA para gerar a pagina inicial do portfolio.",
+    deliverable: "Portfolio online no ar via GitHub Pages com pagina inicial e estrutura pronta para receber os proximos 11 projetos.",
+    repoPath: "projetos/01-git-github-pages",
+    resources: [
+      { type: "doc", title: "Git Docs Oficial", url: "https://git-scm.com/doc" },
+      { type: "doc", title: "GitHub Pages Quickstart", url: "https://docs.github.com/pt/pages/quickstart" },
+      { type: "doc", title: "Learn Git Branching (interativo)", url: "https://learngitbranching.js.org/?locale=pt_BR" },
+      { type: "video", title: "Git/GitHub — TeoMeWhy (PT-BR)", url: "https://www.youtube.com/playlist?list=PLvlkVRRKOYFQ3cfYPjLeQ0KvrQ8bG5H11" },
+      { type: "video", title: "Git for Beginners — freeCodeCamp", url: "https://www.youtube.com/watch?v=RGOj5yH7evk" },
+      { type: "doc", title: "GitHub Skills (cursos interativos)", url: "https://skills.github.com/" }
+    ]
+  },
+  {
+    id: 2, phase: 1, num: "02",
+    title: "Python \u2014 ETL de API Publica",
+    desc: "Extraia dados de uma API REST, transforme e salve localmente",
+    skills: ["Python", "requests", "pandas", "JSON"],
+    detail: "Construa seu primeiro pipeline ETL: extrair dados de uma API publica (ex: dados climaticos ou financeiros), transformar com pandas (limpeza, agregacoes) e salvar em CSV/SQLite. Entenda o ciclo completo de extracao de dados.",
+    deliverable: "GitHub Pages com dashboard interativo mostrando os dados extraidos, codigo com syntax highlight e diagrama do fluxo ETL.",
+    repoPath: "projetos/02-python-etl-api",
+    resources: [
+      { type: "doc", title: "Python Tutorial Oficial (PT-BR)", url: "https://docs.python.org/pt-br/3/tutorial/" },
+      { type: "doc", title: "Requests Quickstart", url: "https://requests.readthedocs.io/en/latest/user/quickstart/" },
+      { type: "doc", title: "Pandas Getting Started", url: "https://pandas.pydata.org/docs/getting_started/index.html" },
+      { type: "video", title: "Build ETL Pipeline — freeCodeCamp", url: "https://www.youtube.com/watch?v=dvviIUKwH7o" },
+      { type: "video", title: "Python para Dados — Hashtag (PT-BR)", url: "https://www.youtube.com/watch?v=GjKQ6V_ViQE" },
+      { type: "doc", title: "What is ETL? Beginner Guide", url: "https://data-guide.github.io/what-is-etl-python-example/" }
+    ]
+  },
+  {
+    id: 3, phase: 1, num: "03",
+    title: "SQL \u2014 Analise de Dados",
+    desc: "Modele um banco, escreva queries analiticas com CTEs e Window Functions",
+    skills: ["SQL", "SQLite", "Modelagem", "CTEs"],
+    detail: "Crie um banco relacional (star schema), popule com dados ficticios e escreva queries que respondem perguntas de negocio. Pratique JOINs, CTEs, Window Functions, agregacoes e subqueries.",
+    deliverable: "GitHub Pages com SQL Explorer interativo — o usuario seleciona queries, ve o codigo SQL e os resultados mockados, tudo no browser.",
+    repoPath: "projetos/03-sql-analise-dados",
+    resources: [
+      { type: "doc", title: "SQLBolt (aprenda SQL interativamente)", url: "https://sqlbolt.com/" },
+      { type: "doc", title: "Select Star SQL (livro interativo)", url: "https://selectstarsql.com/" },
+      { type: "doc", title: "Mode SQL Tutorial", url: "https://mode.com/sql-tutorial" },
+      { type: "video", title: "SQL Full Course — freeCodeCamp", url: "https://www.youtube.com/watch?v=HXV3zeQKqGY" },
+      { type: "video", title: "Window Functions Explained", url: "https://www.youtube.com/watch?v=H6OTMoXjNiM" },
+      { type: "doc", title: "SQLite Docs Oficial", url: "https://www.sqlite.org/docs.html" }
+    ]
+  },
+  {
+    id: 4, phase: 1, num: "04",
+    title: "Shell \u2014 Automacao",
+    desc: "Automatize tarefas repetitivas com scripts Bash",
+    skills: ["Bash", "Shell", "cron", "Scripting"],
+    detail: "Escreva scripts que automatizam setup de ambiente, backup de dados, processamento batch de arquivos e agendamento com cron. Aprenda a pensar em automacao desde o inicio da carreira.",
+    deliverable: "GitHub Pages com terminal simulado mostrando os scripts em execucao, outputs e explicacoes interativas de cada comando.",
+    repoPath: "projetos/04-shell-automacao",
+    resources: [
+      { type: "doc", title: "Bash Manual — GNU", url: "https://www.gnu.org/software/bash/manual/" },
+      { type: "doc", title: "Explain Shell (analisa comandos)", url: "https://explainshell.com/" },
+      { type: "doc", title: "Crontab Guru (editor visual)", url: "https://crontab.guru/" },
+      { type: "video", title: "Bash Scripting — freeCodeCamp", url: "https://www.youtube.com/watch?v=tK9Oc6AEnR4" },
+      { type: "video", title: "Shell Script — Diolinux (PT-BR)", url: "https://www.youtube.com/watch?v=EOLPUc6oo-w" },
+      { type: "doc", title: "Shell Scripting Tutorial", url: "https://www.shellscript.sh/" }
+    ]
+  },
+  {
+    id: 5, phase: 1, num: "05",
+    title: "Linux \u2014 Ambiente de Dados",
+    desc: "Domine o terminal e configure um ambiente profissional",
+    skills: ["Linux", "CLI", "SSH", "Permissoes"],
+    detail: "Configure um ambiente de trabalho de Data Engineer: gerenciamento de pacotes, permissoes, processos, monitoramento, SSH, variaveis de ambiente. Documente tudo como um guia de referencia.",
+    deliverable: "GitHub Pages com guia interativo de comandos Linux — clicavel, com explicacoes contextuais e exemplos praticos para cada topico.",
+    repoPath: "projetos/05-linux-ambiente",
+    resources: [
+      { type: "doc", title: "Linux Journey (interativo)", url: "https://linuxjourney.com/" },
+      { type: "doc", title: "The Linux Command Line (livro free)", url: "https://linuxcommand.org/tlcl.php" },
+      { type: "doc", title: "OverTheWire Bandit (desafios)", url: "https://overthewire.org/wargames/bandit/" },
+      { type: "video", title: "Linux Full Course — freeCodeCamp", url: "https://www.youtube.com/watch?v=sWbUDq4S6Y8" },
+      { type: "video", title: "Linux Iniciantes — Diolinux (PT-BR)", url: "https://www.youtube.com/watch?v=6nN_cYqgbmw" },
+      { type: "doc", title: "TLDR Pages (man pages simples)", url: "https://tldr.sh/" }
+    ]
+  },
+  {
+    id: 6, phase: 2, num: "06",
+    title: "Docker \u2014 Stack Containerizada",
+    desc: "Monte um ambiente local completo com Docker Compose",
+    skills: ["Docker", "Compose", "Dockerfile", "Volumes"],
+    detail: "Containerize uma stack de dados completa: PostgreSQL + Airflow + Jupyter rodando em Docker Compose. Entenda images, containers, volumes, networks e como isso facilita reprodutibilidade.",
+    deliverable: "GitHub Pages com diagrama interativo dos containers — clique em cada servico para ver portas, volumes, dependencias e configuracoes.",
+    repoPath: "projetos/06-docker-stack",
+    resources: [
+      { type: "doc", title: "Docker Docs — Get Started", url: "https://docs.docker.com/get-started/" },
+      { type: "doc", title: "Docker Compose Docs", url: "https://docs.docker.com/compose/" },
+      { type: "doc", title: "Play with Docker (lab online)", url: "https://labs.play-with-docker.com/" },
+      { type: "video", title: "Docker — TechWorld with Nana", url: "https://www.youtube.com/watch?v=3c-iBn73dDE" },
+      { type: "video", title: "Docker em 22 min — Deschamps (PT-BR)", url: "https://www.youtube.com/watch?v=Kzcz-EVKBEQ" },
+      { type: "doc", title: "Dockerfile Best Practices", url: "https://docs.docker.com/build/building/best-practices/" }
+    ]
+  },
+  {
+    id: 7, phase: 2, num: "07",
+    title: "Airflow \u2014 Primeira DAG",
+    desc: "Orquestre um pipeline de dados com Apache Airflow",
+    skills: ["Airflow", "Python", "DAGs", "Scheduling"],
+    detail: "Crie sua primeira DAG no Airflow que orquestra um pipeline: sensor que detecta arquivo, task de extracao, task de transformacao, task de carga. Configure schedules, retries e alertas.",
+    deliverable: "GitHub Pages com visualizacao interativa da DAG — timeline de execucao simulada, status de cada task, logs mockados e grafo de dependencias.",
+    repoPath: "projetos/07-airflow-dag",
+    resources: [
+      { type: "doc", title: "Airflow Tutorial Oficial", url: "https://airflow.apache.org/docs/apache-airflow/stable/tutorial/fundamentals.html" },
+      { type: "doc", title: "Astronomer Airflow 101 (free)", url: "https://academy.astronomer.io/path/airflow-101" },
+      { type: "doc", title: "Airflow in Docker", url: "https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html" },
+      { type: "video", title: "Airflow Tutorial — coder2j", url: "https://www.youtube.com/playlist?list=PLzKRcZrsJN_xcKKyKn18K7sWu5TTtdywh" },
+      { type: "video", title: "Airflow Getting Started — DataCamp", url: "https://www.datacamp.com/tutorial/getting-started-with-apache-airflow" },
+      { type: "doc", title: "Awesome Apache Airflow", url: "https://github.com/jghoman/awesome-apache-airflow" }
+    ]
+  },
+  {
+    id: 8, phase: 2, num: "08",
+    title: "dbt \u2014 Transformacoes e Testes",
+    desc: "Transforme dados com dbt, escreva testes e gere documentacao",
+    skills: ["dbt", "SQL", "Testes", "Docs"],
+    detail: "Construa um projeto dbt completo: models em camadas (staging, intermediate, marts), testes de qualidade (unique, not_null, accepted_values), documentacao auto-gerada e lineage graph.",
+    deliverable: "GitHub Pages com lineage graph interativo mostrando models, dependencias, testes e descricoes — inspirado no dbt docs mas com visual GC Data.",
+    repoPath: "projetos/08-dbt-transformacoes",
+    resources: [
+      { type: "doc", title: "dbt Docs — Quickstart", url: "https://docs.getdbt.com/docs/introduction" },
+      { type: "doc", title: "dbt Learn (cursos oficiais free)", url: "https://www.getdbt.com/dbt-learn" },
+      { type: "doc", title: "dbt Tutorial — Start Data Eng", url: "https://www.startdataengineering.com/post/dbt-data-build-tool-tutorial/" },
+      { type: "video", title: "dbt Core Tutorial — Kahan Data", url: "https://www.youtube.com/watch?v=5rNquRnNb4E" },
+      { type: "video", title: "dbt 7 Concepts — DataCamp", url: "https://www.datacamp.com/tutorial/dbt-tutorial-must-know-concepts-for-data-engineers" },
+      { type: "doc", title: "dbt Best Practices", url: "https://docs.getdbt.com/best-practices" }
+    ]
+  },
+  {
+    id: 9, phase: 2, num: "09",
+    title: "Pipeline Batch Completo",
+    desc: "Integre tudo: API + Python + Airflow + dbt + SQLite",
+    skills: ["Integracao", "E2E", "Batch", "Monitoramento"],
+    detail: "Projeto integrador da Fase 2: pipeline end-to-end que extrai dados de API com Python, orquestra com Airflow, transforma com dbt e carrega em SQLite. Inclui monitoramento e tratamento de erros.",
+    deliverable: "GitHub Pages com dashboard end-to-end mostrando cada etapa do pipeline, metricas de execucao, volume de dados e status de qualidade.",
+    repoPath: "projetos/09-pipeline-batch",
+    resources: [
+      { type: "doc", title: "Beginner DE Project — Start Data Eng", url: "https://www.startdataengineering.com/post/data-engineering-project-for-beginners-batch-edition/" },
+      { type: "doc", title: "Data Engineering Wiki", url: "https://dataengineering.wiki/" },
+      { type: "doc", title: "Awesome Data Engineering", url: "https://github.com/igorbarinov/awesome-data-engineering" },
+      { type: "video", title: "E2E DE Project — Darshil Parmar", url: "https://www.youtube.com/watch?v=GqAcTrqKcrY" },
+      { type: "video", title: "Pipeline Architecture — Seattle Data Guy", url: "https://www.youtube.com/watch?v=VtzvF17ysbc" },
+      { type: "doc", title: "Fundamentals of Data Engineering", url: "https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/" }
+    ]
+  },
+  {
+    id: 10, phase: 3, num: "10",
+    title: "GCP \u2014 BigQuery Fundamentals",
+    desc: "Ingira dados no BigQuery e otimize queries na nuvem",
+    skills: ["BigQuery", "Cloud Storage", "IAM", "GCP"],
+    detail: "Primeiro projeto na nuvem: faca upload de dados para Cloud Storage, carregue no BigQuery, otimize queries com particionamento e clustering, configure IAM basico. Entenda custos e boas praticas.",
+    deliverable: "GitHub Pages com console simulado do BigQuery — execute queries, veja resultados e estimativa de custos de processamento.",
+    repoPath: "projetos/10-gcp-bigquery",
+    resources: [
+      { type: "doc", title: "BigQuery Quickstart", url: "https://cloud.google.com/bigquery/docs/quickstarts" },
+      { type: "doc", title: "Cloud Skills Boost (labs free)", url: "https://www.cloudskillsboost.google/paths/16" },
+      { type: "doc", title: "BigQuery Best Practices", url: "https://cloud.google.com/bigquery/docs/best-practices-performance-overview" },
+      { type: "video", title: "BigQuery Tutorial — Google Cloud", url: "https://www.youtube.com/watch?v=d3MDxC_iuaw" },
+      { type: "video", title: "GCP Data Engineer — ExamPro", url: "https://www.youtube.com/watch?v=iAxjBihfmFM" },
+      { type: "doc", title: "GCP Free Tier Limites", url: "https://cloud.google.com/free/docs/free-cloud-features" }
+    ]
+  },
+  {
+    id: 11, phase: 3, num: "11",
+    title: "Terraform \u2014 Infra como Codigo",
+    desc: "Provisione infraestrutura GCP com Terraform",
+    skills: ["Terraform", "IaC", "GCP Provider", "State"],
+    detail: "Codifique em Terraform toda a infraestrutura do projeto anterior: bucket GCS, dataset BigQuery, service accounts, IAM policies. Entenda plan, apply, state e modules.",
+    deliverable: "GitHub Pages com visualizacao dos recursos Terraform — plan simulado mostrando o que sera criado, com diagrama da infra provisionada.",
+    repoPath: "projetos/11-terraform-iac",
+    resources: [
+      { type: "doc", title: "Terraform GCP Get Started", url: "https://developer.hashicorp.com/terraform/tutorials/gcp-get-started" },
+      { type: "doc", title: "Google Provider Docs", url: "https://registry.terraform.io/providers/hashicorp/google/latest/docs" },
+      { type: "doc", title: "Terraform + GCP — Google Skills", url: "https://www.skills.google/paths/20/course_templates/443" },
+      { type: "video", title: "Terraform Full Course — freeCodeCamp", url: "https://www.youtube.com/watch?v=SLB_c_ayRMo" },
+      { type: "video", title: "Terraform + GCP — Udemy (free)", url: "https://www.udemy.com/course/terraform-gcp/" },
+      { type: "doc", title: "Terraform Best Practices", url: "https://developer.hashicorp.com/terraform/cloud-docs/recommended-practices" }
+    ]
+  },
+  {
+    id: 12, phase: 3, num: "12",
+    title: "Pipeline Cloud Completo",
+    desc: "Pipeline de producao: GCS + Composer + dbt + BigQuery + Terraform",
+    skills: ["GCP", "Composer", "dbt", "BigQuery", "Terraform"],
+    detail: "Projeto final: pipeline de producao completo na GCP. Dados chegam no Cloud Storage, Cloud Composer (Airflow) orquestra, dbt transforma, BigQuery armazena. Toda infra via Terraform. CI/CD incluido.",
+    deliverable: "GitHub Pages com arquitetura interativa completa — clique em cada componente para ver detalhes, status, configuracoes e metricas do pipeline.",
+    repoPath: "projetos/12-pipeline-cloud",
+    resources: [
+      { type: "doc", title: "Cloud Composer Docs", url: "https://cloud.google.com/composer/docs" },
+      { type: "doc", title: "dbt + BigQuery Quickstart", url: "https://docs.getdbt.com/guides/bigquery" },
+      { type: "doc", title: "GCP Architecture Center", url: "https://cloud.google.com/architecture" },
+      { type: "video", title: "E2E GCP Pipeline — Andreas Kretz", url: "https://www.youtube.com/watch?v=Is4HPhxoGNY" },
+      { type: "video", title: "DE on GCP — Google Cloud", url: "https://www.youtube.com/watch?v=nONUTDpGxZA" },
+      { type: "doc", title: "Data Engineer Roadmap", url: "https://github.com/datastacktv/data-engineer-roadmap" }
+    ]
+  }
+];
+
+// === RENDER PROJECTS ===
+function renderProjects() {
+  const completed = JSON.parse(localStorage.getItem('gc-roadmap-progress') || '{}');
+  
+  [1, 2, 3].forEach(phase => {
+    const grid = document.getElementById(`phase${phase}-grid`);
+    grid.innerHTML = '';
+    const phaseProjects = projects.filter(p => p.phase === phase);
+    
+    phaseProjects.forEach((project, idx) => {
+      const isCompleted = completed[project.id];
+      const card = document.createElement('div');
+      card.className = `project-card fade-in stagger-${idx + 1}${isCompleted ? ' completed' : ''}`;
+      card.dataset.id = project.id;
+      
+      card.innerHTML = `
+        <div class="card-main">
+          <span class="card-number">${project.num}</span>
+          <div class="card-check" onclick="event.stopPropagation();toggleComplete(${project.id})" title="Marcar como concluido">
+            ${isCompleted ? '&#10003;' : ''}
+          </div>
+          <div class="card-info">
+            <div class="card-title">${project.title}</div>
+            <div class="card-desc">${project.desc}</div>
+          </div>
+          <div class="card-tags">
+            ${project.skills.slice(0, 3).map(s => `<span class="card-tag">${s}</span>`).join('')}
+          </div>
+          <span class="card-arrow">&#8250;</span>
+        </div>
+        <div class="card-detail">
+          <div class="card-detail-inner">
+            <div class="detail-section">
+              <div class="detail-label">Sobre o Projeto</div>
+              <div class="detail-text">${project.detail}</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Skills</div>
+              <div class="detail-skills">
+                ${project.skills.map(s => `<span class="detail-skill">${s}</span>`).join('')}
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Entregavel — GitHub Pages</div>
+              <div class="detail-deliverable">
+                <span class="icon">&#127760;</span>
+                <p>${project.deliverable}</p>
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recursos para Estudar</div>
+              <div class="detail-resources">
+                ${(project.resources||[]).map(r => `<a href="${r.url}" target="_blank" class="resource-item"><span class="resource-type ${r.type}">${r.type === 'video' ? '\u25B6 Video' : '\u2691 Doc'}</span>${r.title}</a>`).join('')}
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-links">
+                <a href="https://github.com/gc-data-academy/roadmap-data-engineering/tree/main/${project.repoPath}" target="_blank" class="detail-link">
+                  &#128193; Ver Projeto no GitHub
+                </a>
+                <a href="https://github.com/gc-data-academy/roadmap-data-engineering/tree/main/${project.repoPath}/PROMPT.md" target="_blank" class="detail-link">
+                  &#9889; Prompt do Portfolio
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.card-check') || e.target.closest('.detail-link') || e.target.closest('.resource-item')) return;
+        const wasExpanded = card.classList.contains('expanded');
+        document.querySelectorAll('.project-card.expanded').forEach(c => c.classList.remove('expanded'));
+        if (!wasExpanded) card.classList.add('expanded');
+      });
+      
+      grid.appendChild(card);
+    });
+  });
+  
+  updateProgress(completed);
+}
+
+// === TOGGLE COMPLETE ===
+function toggleComplete(id) {
+  const completed = JSON.parse(localStorage.getItem('gc-roadmap-progress') || '{}');
+  if (completed[id]) {
+    delete completed[id];
+  } else {
+    completed[id] = true;
+  }
+  localStorage.setItem('gc-roadmap-progress', JSON.stringify(completed));
+  
+  // Update only the specific card instead of re-rendering everything
+  const card = document.querySelector(`.project-card[data-id="${id}"]`);
+  if (card) {
+    const check = card.querySelector('.card-check');
+    if (completed[id]) {
+      card.classList.add('completed');
+      check.innerHTML = '&#10003;';
+    } else {
+      card.classList.remove('completed');
+      check.innerHTML = '';
+    }
+  }
+  updateProgress(completed);
+}
+
+// === UPDATE PROGRESS ===
+function updateProgress(completed) {
+  const count = Object.keys(completed).length;
+  const pct = Math.round((count / 12) * 100);
+  
+  document.getElementById('completedCount').textContent = count;
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('progressPercent').textContent = pct + '%';
+}
+
+// === SCROLL ANIMATIONS ===
+function initScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.05 });
+  
+  // Observe phase sections and CTA
+  document.querySelectorAll('.phase.fade-in, .cta-box.fade-in').forEach(el => observer.observe(el));
+  
+  // Cards get visible immediately with staggered delay (CSS handles the timing)
+  document.querySelectorAll('.project-card.fade-in').forEach(el => {
+    setTimeout(() => el.classList.add('visible'), 50);
+  });
+}
+
+// === INIT ===
+document.addEventListener('DOMContentLoaded', () => {
+  renderProjects();
+  setTimeout(initScrollAnimations, 100);
+});
+</script>
+
+</body>
+</html>
