@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Analise — Spotify | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c10;--surface:#12161e;--surface-2:#1a1f2b;--border:#252b3b;--text:#d1d5db;--text-dim:#9ca3af;--text-muted:#6b7280;--green:#1DB954;--green-dim:rgba(29,185,84,0.12);--blue:#4f9eff;--purple:#a78bfa;--pink:#f472b6;--yellow:#fbbf24;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--green)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}
+nav a:hover{color:var(--text)}
+.stats-bar{max-width:1200px;margin:0 auto;padding:20px 20px 0;display:flex;gap:12px;flex-wrap:wrap}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 18px;flex:1;min-width:100px;text-align:center}
+.stat-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green)}
+.stat-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.app{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:260px 1fr;gap:16px;min-height:65vh}
+@media(max-width:860px){.app{grid-template-columns:1fr}}
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sidebar-title{font-size:11px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:12px 14px 8px}
+.schema-mini{padding:0 14px 14px;font-family:var(--mono);font-size:10px;line-height:2;color:var(--text-dim)}
+.schema-table{color:var(--green);font-weight:600}
+.schema-fk{color:var(--purple);font-style:italic}
+.query-list{display:flex;flex-direction:column}
+.query-item{padding:10px 14px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-size:12px;color:var(--text-dim)}
+.query-item:hover{background:var(--surface-2);color:var(--text)}
+.query-item.active{background:var(--green-dim);border-left-color:var(--green);color:var(--green)}
+.query-num{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-right:6px}
+.main-area{display:flex;flex-direction:column;gap:16px}
+.question-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.question-text{font-size:15px;font-weight:600}.question-text em{color:var(--green);font-style:normal}
+.run-btn{background:var(--green);color:#000;border:none;border-radius:6px;padding:8px 18px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.run-btn:hover{opacity:.85;transform:translateY(-1px)}.run-btn:disabled{opacity:.4;cursor:default;transform:none}
+.code-box,.results-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.code-header,.results-header{background:var(--surface-2);padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}
+.code-content{padding:16px;font-family:var(--mono);font-size:12px;line-height:2;overflow-x:auto;white-space:pre}
+.sql-kw{color:var(--purple);font-weight:500}.sql-fn{color:var(--blue)}.sql-str{color:var(--green)}.sql-num{color:var(--yellow)}.sql-cm{color:var(--text-muted);font-style:italic}.sql-col{color:var(--pink)}
+.results-table{width:100%;overflow-x:auto;display:block}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface-2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:8px 12px;text-align:left;white-space:nowrap}
+td{padding:8px 12px;border-top:1px solid var(--border);white-space:nowrap}
+tr:hover td{background:rgba(29,185,84,0.04)}
+.num-cell{font-family:var(--mono);text-align:right;color:var(--blue)}
+.highlight-cell{color:var(--green);font-weight:600}
+.empty-state{padding:40px;text-align:center;color:var(--text-muted);font-size:13px}
+.about{max-width:1200px;margin:0 auto;padding:32px 20px 48px}
+.about h2{font-size:20px;font-weight:700;margin-bottom:12px}
+.about p{color:var(--text-dim);font-size:14px;line-height:1.8;max-width:700px}
+.skills-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.skill{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim)}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:11px;color:var(--text-muted)}footer a{color:var(--green);text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="inner"><div class="title"><span>03</span> SQL Analise — Spotify</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/03-sql-primeiras-queries" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+<div class="stats-bar"><div class="stat-card"><div class="stat-val">20</div><div class="stat-label">Artistas</div></div><div class="stat-card"><div class="stat-val">40</div><div class="stat-label">Albuns</div></div><div class="stat-card"><div class="stat-val">100</div><div class="stat-label">Musicas</div></div><div class="stat-card"><div class="stat-val">5</div><div class="stat-label">Playlists</div></div><div class="stat-card"><div class="stat-val">6</div><div class="stat-label">Queries</div></div></div>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-section"><div class="sidebar-title">Schema</div><div class="schema-mini"><span class="schema-table">artistas</span> (id, nome, pais, genero, seguidores)<br><span class="schema-table">albuns</span> (id, titulo, <span class="schema-fk">artista_id</span>, ano, faixas)<br><span class="schema-table">musicas</span> (id, titulo, <span class="schema-fk">album_id</span>, duracao, popularidade, explicit)<br><span class="schema-table">playlists</span> (id, nome, descricao, seguidores)<br><span class="schema-table">playlist_musicas</span> (<span class="schema-fk">playlist_id</span>, <span class="schema-fk">musica_id</span>, data)</div></div>
+    <div class="sidebar-section"><div class="sidebar-title">Queries</div><div class="query-list" id="queryList"></div></div>
+  </div>
+  <div class="main-area">
+    <div class="question-bar"><div class="question-text" id="questionText">Selecione uma query na sidebar</div><button class="run-btn" id="runBtn" disabled>Executar Query</button></div>
+    <div class="code-box"><div class="code-header"><span id="codeFile">-- selecione uma query</span><span>SQL</span></div><div class="code-content" id="codeContent"><span class="sql-cm">-- Clique em uma query na sidebar</span>
+<span class="sql-cm">-- Depois clique "Executar Query"</span></div></div>
+    <div class="results-box"><div class="results-header"><span id="resultsInfo">Resultados</span><span id="rowCount"></span></div><div class="results-table" id="resultsTable"><div class="empty-state">Selecione uma query e clique "Executar"</div></div></div>
+  </div>
+</div>
+<section class="about"><h2>O que aprendi</h2><p>Neste projeto pratiquei SQL do zero analisando dados do Spotify. Cada query ensina um conceito — de SELECT simples ate JOINs com multiplas tabelas e agregacoes com GROUP BY e HAVING.</p><div class="skills-list"><span class="skill">SELECT</span><span class="skill">WHERE</span><span class="skill">ORDER BY</span><span class="skill">LIMIT</span><span class="skill">JOIN</span><span class="skill">GROUP BY</span><span class="skill">HAVING</span><span class="skill">COUNT</span><span class="skill">AVG</span><span class="skill">ROUND</span><span class="skill">Aliases</span></div></section>
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+<script>
+const Q=[
+{id:1,title:"Top 10 artistas por seguidores",question:"Quais sao os <em>10 artistas</em> com mais seguidores?",file:"01-top-artistas.sql",concepts:"SELECT, ORDER BY, LIMIT",
+sql:`<span class="sql-cm">-- Q1: Top 10 artistas por seguidores</span>\n\n<span class="sql-kw">SELECT</span>\n    <span class="sql-col">nome</span>,\n    <span class="sql-col">pais</span>,\n    <span class="sql-col">genero</span>,\n    <span class="sql-col">seguidores</span>\n<span class="sql-kw">FROM</span> artistas\n<span class="sql-kw">ORDER BY</span> <span class="sql-col">seguidores</span> <span class="sql-kw">DESC</span>\n<span class="sql-kw">LIMIT</span> <span class="sql-num">10</span>;`,
+cols:["nome","pais","genero","seguidores"],hl:3,
+rows:[["Taylor Swift","EUA","Pop","90,000,000"],["Ed Sheeran","Reino Unido","Pop","85,000,000"],["Drake","Canada","Hip-Hop","75,000,000"],["BTS","Coreia do Sul","K-Pop","70,000,000"],["Bad Bunny","Porto Rico","Reggaeton","65,000,000"],["Eminem","EUA","Hip-Hop","62,000,000"],["Billie Eilish","EUA","Pop","60,000,000"],["Rihanna","Barbados","R&B","58,000,000"],["The Weeknd","Canada","R&B","55,000,000"],["Adele","Reino Unido","Pop","52,000,000"]]},
+
+{id:2,title:"Albuns por artista",question:"Quantos <em>albuns</em> cada artista lancou?",file:"02-albuns-por-artista.sql",concepts:"JOIN, GROUP BY, COUNT",
+sql:`<span class="sql-cm">-- Q2: Albuns por artista</span>\n\n<span class="sql-kw">SELECT</span>\n    a.<span class="sql-col">nome</span> <span class="sql-kw">AS</span> artista,\n    <span class="sql-fn">COUNT</span>(al.<span class="sql-col">id</span>) <span class="sql-kw">AS</span> total_albuns\n<span class="sql-kw">FROM</span> artistas a\n<span class="sql-kw">JOIN</span> albuns al <span class="sql-kw">ON</span> a.id = al.artista_id\n<span class="sql-kw">GROUP BY</span> a.<span class="sql-col">nome</span>\n<span class="sql-kw">ORDER BY</span> total_albuns <span class="sql-kw">DESC</span>;`,
+cols:["artista","total_albuns"],hl:1,
+rows:[["Shakira","4"],["Taylor Swift","3"],["Bad Bunny","2"],["The Weeknd","2"],["Billie Eilish","2"],["Kendrick Lamar","2"],["Dua Lipa","2"],["Post Malone","2"],["Anitta","2"],["Arctic Monkeys","2"],["Adele","2"],["Ed Sheeran","2"],["Eminem","2"],["Coldplay","2"],["Rihanna","2"],["Imagine Dragons","2"],["BTS","2"],["Linkin Park","2"],["Drake","2"],["Seu Jorge","1"]]},
+
+{id:3,title:"Duracao media por genero",question:"Qual a <em>duracao media</em> das musicas por genero?",file:"03-duracao-por-genero.sql",concepts:"JOIN (multiplos), AVG, ROUND",
+sql:`<span class="sql-cm">-- Q3: Duracao media por genero</span>\n\n<span class="sql-kw">SELECT</span>\n    a.<span class="sql-col">genero</span>,\n    <span class="sql-fn">COUNT</span>(m.<span class="sql-col">id</span>) <span class="sql-kw">AS</span> total_musicas,\n    <span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(m.duracao_ms) / <span class="sql-num">1000.0</span>, <span class="sql-num">1</span>) <span class="sql-kw">AS</span> duracao_seg,\n    <span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(m.popularidade), <span class="sql-num">1</span>) <span class="sql-kw">AS</span> pop_media\n<span class="sql-kw">FROM</span> musicas m\n<span class="sql-kw">JOIN</span> albuns al <span class="sql-kw">ON</span> m.album_id = al.id\n<span class="sql-kw">JOIN</span> artistas a <span class="sql-kw">ON</span> al.artista_id = a.id\n<span class="sql-kw">GROUP BY</span> a.<span class="sql-col">genero</span>\n<span class="sql-kw">ORDER BY</span> pop_media <span class="sql-kw">DESC</span>;`,
+cols:["genero","total_musicas","duracao_seg","pop_media"],hl:3,
+rows:[["Pop","25","228.5","88.4"],["Reggaeton","5","229.4","88.0"],["K-Pop","6","214.0","87.7"],["R&B","10","238.8","87.6"],["Hip-Hop","20","230.9","86.0"],["Rock","22","218.1","85.7"],["Pop Latino","7","205.0","82.3"],["MPB","5","214.6","76.2"]]},
+
+{id:4,title:"Musicas explicitas populares",question:"Quais <em>musicas explicitas</em> tem popularidade > 80?",file:"04-musicas-explicitas.sql",concepts:"WHERE, AND, JOIN",
+sql:`<span class="sql-cm">-- Q4: Musicas explicitas populares</span>\n\n<span class="sql-kw">SELECT</span>\n    m.<span class="sql-col">titulo</span> <span class="sql-kw">AS</span> musica,\n    a.<span class="sql-col">nome</span> <span class="sql-kw">AS</span> artista,\n    m.<span class="sql-col">popularidade</span>\n<span class="sql-kw">FROM</span> musicas m\n<span class="sql-kw">JOIN</span> albuns al <span class="sql-kw">ON</span> m.album_id = al.id\n<span class="sql-kw">JOIN</span> artistas a <span class="sql-kw">ON</span> al.artista_id = a.id\n<span class="sql-kw">WHERE</span> m.<span class="sql-col">explicit</span> = <span class="sql-num">1</span>\n  <span class="sql-kw">AND</span> m.<span class="sql-col">popularidade</span> > <span class="sql-num">80</span>\n<span class="sql-kw">ORDER BY</span> m.popularidade <span class="sql-kw">DESC</span>;`,
+cols:["musica","artista","popularidade"],hl:2,
+rows:[["HUMBLE.","Kendrick Lamar","94"],["Me Porto Bonito","Bad Bunny","93"],["Love the Way You Lie","Eminem","92"],["Rockstar","Post Malone","91"],["Not Afraid","Eminem","90"],["Titi Me Pregunto","Bad Bunny","90"],["The Real Slim Shady","Eminem","89"],["In My Feelings","Drake","88"],["DNA.","Kendrick Lamar","88"],["Happier Than Ever","Billie Eilish","87"],["Yo Perreo Sola","Bad Bunny","86"],["After Hours","The Weeknd","85"],["Swimming Pools","Kendrick Lamar","85"],["Money Trees","Kendrick Lamar","87"],["Way 2 Sexy","Drake","82"]]},
+
+{id:5,title:"Top 10 musicas mais populares",question:"Qual artista tem a <em>musica mais popular</em>?",file:"05-artista-mais-popular.sql",concepts:"JOIN (3 tabelas), ORDER BY, LIMIT",
+sql:`<span class="sql-cm">-- Q5: Top 10 musicas mais populares</span>\n\n<span class="sql-kw">SELECT</span>\n    a.<span class="sql-col">nome</span> <span class="sql-kw">AS</span> artista,\n    m.<span class="sql-col">titulo</span> <span class="sql-kw">AS</span> musica,\n    al.<span class="sql-col">titulo</span> <span class="sql-kw">AS</span> album,\n    m.<span class="sql-col">popularidade</span>\n<span class="sql-kw">FROM</span> musicas m\n<span class="sql-kw">JOIN</span> albuns al <span class="sql-kw">ON</span> m.album_id = al.id\n<span class="sql-kw">JOIN</span> artistas a <span class="sql-kw">ON</span> al.artista_id = a.id\n<span class="sql-kw">ORDER BY</span> m.<span class="sql-col">popularidade</span> <span class="sql-kw">DESC</span>\n<span class="sql-kw">LIMIT</span> <span class="sql-num">10</span>;`,
+cols:["artista","musica","album","popularidade"],hl:3,
+rows:[["The Weeknd","Blinding Lights","After Hours","97"],["Ed Sheeran","Shape of You","Divide","96"],["Billie Eilish","Bad Guy","When We All Fall Asleep","96"],["Taylor Swift","Anti-Hero","Midnights","95"],["Post Malone","Sunflower","Hollywoods Bleeding","95"],["Kendrick Lamar","HUMBLE.","DAMN.","94"],["Dua Lipa","Levitating","Future Nostalgia","94"],["BTS","Dynamite","Map of the Soul: 7","94"],["Linkin Park","Numb","Meteora","94"],["Bad Bunny","Me Porto Bonito","Un Verano Sin Ti","93"]]},
+
+{id:6,title:"Playlists com 50+ musicas",question:"Quais <em>playlists</em> tem mais de 50 musicas?",file:"06-playlists-grandes.sql",concepts:"JOIN, GROUP BY, HAVING, COUNT",
+sql:`<span class="sql-cm">-- Q6: Playlists com mais de 50 musicas</span>\n\n<span class="sql-kw">SELECT</span>\n    p.<span class="sql-col">nome</span> <span class="sql-kw">AS</span> playlist,\n    p.<span class="sql-col">seguidores</span>,\n    <span class="sql-fn">COUNT</span>(pm.<span class="sql-col">musica_id</span>) <span class="sql-kw">AS</span> total_musicas\n<span class="sql-kw">FROM</span> playlists p\n<span class="sql-kw">JOIN</span> playlist_musicas pm <span class="sql-kw">ON</span> p.id = pm.playlist_id\n<span class="sql-kw">GROUP BY</span> p.id, p.nome, p.seguidores\n<span class="sql-kw">HAVING</span> <span class="sql-fn">COUNT</span>(pm.musica_id) > <span class="sql-num">50</span>\n<span class="sql-kw">ORDER BY</span> total_musicas <span class="sql-kw">DESC</span>;`,
+cols:["playlist","seguidores","total_musicas"],hl:2,
+rows:[["Top Hits Brasil","2,500,000","65"],["Pop Internacional","4,100,000","58"],["Workout Energy","3,200,000","55"]]}
+];
+
+const qList=document.getElementById('queryList'),qText=document.getElementById('questionText'),cCode=document.getElementById('codeContent'),cFile=document.getElementById('codeFile'),rTable=document.getElementById('resultsTable'),rInfo=document.getElementById('resultsInfo'),rCount=document.getElementById('rowCount'),rBtn=document.getElementById('runBtn');
+let cur=null,shown=false;
+
+Q.forEach(q=>{const el=document.createElement('div');el.className='query-item';el.innerHTML=`<span class="query-num">Q${q.id}</span>${q.title}`;el.onclick=()=>sel(q);qList.appendChild(el)});
+
+function sel(q){cur=q;shown=false;document.querySelectorAll('.query-item').forEach((e,i)=>e.classList.toggle('active',i===q.id-1));qText.innerHTML=q.question;cCode.innerHTML=q.sql;cFile.textContent=q.file+' — '+q.concepts;rBtn.disabled=false;rTable.innerHTML='<div class="empty-state">Clique "Executar Query" para ver os resultados</div>';rInfo.textContent='Resultados';rCount.textContent=''}
+
+rBtn.onclick=()=>{if(!cur||shown)return;shown=true;const q=cur;rInfo.textContent='Resultados — '+q.file;rCount.textContent=q.rows.length+' linha(s)';let h='<table><thead><tr>';q.cols.forEach(c=>{h+=`<th>${c}</th>`});h+='</tr></thead><tbody>';q.rows.forEach(r=>{h+='<tr>';r.forEach((c,i)=>{const n=!isNaN(c.replace(/,/g,''));h+=`<td class="${i===q.hl?'highlight-cell':n?'num-cell':''}">${c}</td>`});h+='</tr>'});h+='</tbody></table>';rTable.innerHTML=h};
+</script>
+</body>
+</html>
