@@ -88,7 +88,7 @@ git merge feature/secao-contato
 
 ## 📚 Recursos
 
-Acesse o [Roadmap Interativo](https://gc-data-academy.github.io/roadmap-data-engineering) e clique neste projeto para ver docs e vídeos recomendados.
+Acesse o [Roadmap Interativo](https://guicolla.github.io/roadmap-data-eng) e clique neste projeto para ver docs e vídeos recomendados.
 
 ---
 
