@@ -42,7 +42,7 @@ Este roadmap é um guia **prático e gratuito** para quem quer se tornar Data En
 
 ### 1. Acesse o Roadmap Interativo
 
-👉 **[guicolla.github.io/roadmap-data-eng](https://gc-data-academy.github.io/roadmap-data-eng)**
+👉 **[guicolla.github.io/roadmap-data-eng](https://guicolla.github.io/roadmap-data-eng)**
 
 O roadmap visual mostra todas as fases, projetos, skills e recursos. Você pode marcar projetos como concluídos e acompanhar seu progresso.
 
@@ -153,7 +153,7 @@ Este projeto é open source sob a licença [MIT](LICENSE).
 ---
 
 <p align="center">
-  Feito por <a href="https://www.linkedin.com/in/guilhermecolla/">Guilherme Colla</a> — <a href="https://gcdatac.com">GC Data</a>
+  Feito por <a href="https://www.linkedin.com/in/guilherme-colla/">Guilherme Colla</a> — <a href="https://gcdatac.com">GC Data</a>
 </p>
 
 <p align="center">
