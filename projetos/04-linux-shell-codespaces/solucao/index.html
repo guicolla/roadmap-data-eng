@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux + Shell | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0c0c;--surface:#141414;--surface-2:#1c1c1c;--border:#2a2a2a;--text:#d4d4d4;--text-dim:#888;--text-muted:#555;--green:#4EC9B0;--green-dim:rgba(78,201,176,.12);--blue:#569CD6;--yellow:#DCDCAA;--orange:#CE9178;--purple:#C586C0;--red:#F44747;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--green)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}nav a:hover{color:var(--text)}
+.hero{max-width:1100px;margin:0 auto;padding:40px 20px 24px}
+.hero h1{font-size:clamp(24px,4vw,34px);font-weight:700;letter-spacing:-1px;margin-bottom:6px}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero p{color:var(--text-dim);font-size:14px}
+section{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+section h2{font-size:20px;font-weight:700;margin-bottom:16px;letter-spacing:-.3px}
+
+/* COMMAND GRID */
+.cmd-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cmd-cat{padding:6px 14px;border-radius:6px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s;border:1px solid var(--border);color:var(--text-dim);background:var(--surface)}
+.cmd-cat:hover{border-color:var(--green);color:var(--green)}
+.cmd-cat.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.cmd-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s}
+.cmd-card:hover{border-color:var(--green);transform:translateY(-1px)}
+.cmd-card.expanded{border-color:var(--green)}
+.cmd-name{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--green);margin-bottom:2px}
+.cmd-desc{font-size:12px;color:var(--text-dim)}
+.cmd-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.cmd-card.expanded .cmd-detail{display:block}
+.cmd-example{background:var(--surface-2);border-radius:4px;padding:10px;font-family:var(--mono);font-size:11px;margin:6px 0}
+.cmd-example .prompt{color:var(--green)}
+.cmd-example .output{color:var(--text-muted)}
+.cmd-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+/* TERMINAL */
+.terminal{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:8px}
+.term-bar{background:var(--surface-2);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.dot{width:10px;height:10px;border-radius:50%}.dot.r{background:var(--red)}.dot.y{background:#DCDCAA}.dot.g{background:var(--green)}
+.term-title{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:8px}
+.term-body{padding:16px;font-family:var(--mono);font-size:12px;line-height:1.9;height:320px;overflow-y:auto}
+.term-body::-webkit-scrollbar{width:4px}.term-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.t-green{color:var(--green)}.t-blue{color:var(--blue)}.t-red{color:var(--red)}.t-yellow{color:var(--yellow)}.t-dim{color:var(--text-muted)}.t-orange{color:var(--orange)}.t-purple{color:var(--purple)}
+.script-btns{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--surface-2)}
+.script-btn{flex:1;padding:8px;border-radius:6px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s;border:1px solid var(--border);color:var(--text-dim);background:var(--surface);text-align:center}
+.script-btn:hover{border-color:var(--green);color:var(--green)}
+.script-btn.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.script-btn:disabled{opacity:.3;cursor:default}
+
+.about{max-width:1100px;margin:0 auto;padding:0 20px 48px}
+.about h2{font-size:20px;font-weight:700;margin-bottom:12px}
+.about p{color:var(--text-dim);font-size:14px;line-height:1.8;max-width:700px}
+.skills-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.skill{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim)}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:11px;color:var(--text-muted)}footer a{color:var(--green);text-decoration:none}
+@media(max-width:700px){.cmd-grid{grid-template-columns:1fr}.script-btns{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav><div class="inner"><div class="title"><span>04</span> Linux + Shell</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/04-linux-shell-codespaces" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+
+<div class="hero"><h1>Linux + <em>Shell Scripting</em></h1><p>Comandos essenciais e scripts Bash para automacao — praticado via GitHub Codespaces.</p></div>
+
+<section>
+<h2>Comandos Linux</h2>
+<div class="cmd-cats" id="cmdCats"></div>
+<div class="cmd-grid" id="cmdGrid"></div>
+</section>
+
+<section>
+<h2>Scripts Bash</h2>
+<p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">Clique num script para ver a execucao simulada no terminal.</p>
+<div class="terminal">
+  <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">user@codespace:~$</span></div>
+  <div class="term-body" id="termBody"></div>
+  <div class="script-btns" id="scriptBtns"></div>
+</div>
+</section>
+
+<section class="about"><h2>O que aprendi</h2><p>Neste projeto dominei o terminal Linux e automacao com Bash. Pratiquei em GitHub Codespaces sem instalar nada — tudo no browser.</p><div class="skills-list"><span class="skill">cd/ls/pwd</span><span class="skill">grep</span><span class="skill">sed/awk</span><span class="skill">chmod</span><span class="skill">ps/kill</span><span class="skill">pipes |</span><span class="skill">variaveis</span><span class="skill">condicionais</span><span class="skill">loops</span><span class="skill">funcoes</span><span class="skill">tar/gzip</span><span class="skill">curl</span><span class="skill">cron</span><span class="skill">Codespaces</span></div></section>
+
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+
+<script>
+const commands = {
+  "Navegacao":[
+    {name:"pwd",desc:"Mostra o diretorio atual",example:"$ pwd",output:"/home/user/projetos"},
+    {name:"ls -la",desc:"Lista arquivos com detalhes e ocultos",example:"$ ls -la",output:"drwxr-xr-x 3 user user 4096 Mar 25 data/\n-rw-r--r-- 1 user user  142 Mar 25 script.sh"},
+    {name:"cd",desc:"Navega entre diretorios",example:"$ cd data/raw && pwd",output:"/home/user/data/raw"},
+    {name:"find",desc:"Busca arquivos por nome ou tipo",example:"$ find . -name '*.csv'",output:"./dados/vendas_jan.csv\n./dados/vendas_fev.csv"},
+    {name:"tree",desc:"Mostra estrutura de pastas em arvore",example:"$ tree -L 2",output:".\n├── dados/\n│   ├── vendas_jan.csv\n│   └── vendas_fev.csv\n└── scripts/\n    └── setup.sh"}
+  ],
+  "Arquivos":[
+    {name:"cat",desc:"Mostra conteudo de um arquivo",example:"$ cat config.txt",output:"DB_HOST=localhost\nDB_PORT=5432"},
+    {name:"head / tail",desc:"Mostra inicio ou fim de um arquivo",example:"$ head -3 vendas.csv",output:"id,produto,valor\n1,Notebook,4500\n2,Mouse,120"},
+    {name:"cp / mv / rm",desc:"Copia, move ou remove arquivos",example:"$ cp dados.csv backup/\n$ mv old.csv archive/\n$ rm temp.csv",output:""},
+    {name:"mkdir",desc:"Cria diretorios",example:"$ mkdir -p data/raw data/processed",output:""},
+    {name:"wc",desc:"Conta linhas, palavras e caracteres",example:"$ wc -l vendas.csv",output:"11 vendas.csv"}
+  ],
+  "Busca":[
+    {name:"grep",desc:"Busca texto dentro de arquivos",example:"$ grep 'erro' app.log",output:"2024-03-25 14:30 [ERRO] conexao recusada\n2024-03-25 15:01 [ERRO] timeout"},
+    {name:"grep -c",desc:"Conta ocorrencias",example:"$ grep -c 'erro' app.log",output:"2"},
+    {name:"sed",desc:"Substitui texto em stream",example:"$ sed 's/antigo/novo/g' arquivo.txt",output:"(substitui todas as ocorrencias)"},
+    {name:"awk",desc:"Processa texto por colunas",example:"$ awk -F',' '{print $1, $3}' vendas.csv",output:"id valor\n1 4500\n2 120"},
+    {name:"sort | uniq",desc:"Ordena e remove duplicatas",example:"$ cut -d',' -f2 vendas.csv | sort | uniq -c | sort -rn",output:"   3 Notebook\n   2 Mouse\n   1 Monitor"}
+  ],
+  "Permissoes":[
+    {name:"chmod",desc:"Altera permissoes de arquivo",example:"$ chmod +x script.sh\n$ chmod 755 script.sh",output:""},
+    {name:"chown",desc:"Altera dono do arquivo",example:"$ chown user:group arquivo.txt",output:""},
+    {name:"ls -la",desc:"Ve permissoes detalhadas",example:"$ ls -la script.sh",output:"-rwxr-xr-x 1 user user 2048 Mar 25 script.sh\n r=read w=write x=execute"}
+  ],
+  "Processos":[
+    {name:"ps aux",desc:"Lista processos rodando",example:"$ ps aux | grep python",output:"user  1234  0.5  2.1 python3 etl.py"},
+    {name:"top / htop",desc:"Monitor de processos em tempo real",example:"$ top",output:"(abre monitor interativo)"},
+    {name:"kill",desc:"Encerra um processo pelo PID",example:"$ kill 1234\n$ kill -9 1234  # forca",output:""},
+    {name:"nohup &",desc:"Roda processo em background",example:"$ nohup python3 etl.py &",output:"[1] 5678\nnohup: appending output to nohup.out"}
+  ],
+  "Rede":[
+    {name:"curl",desc:"Faz requisicoes HTTP",example:"$ curl -s https://api.github.com | head -5",output:'{\n  "current_user_url": "https://api.github.com/user",\n  ...'},
+    {name:"wget",desc:"Baixa arquivos da internet",example:"$ wget https://example.com/dados.csv",output:"dados.csv  100%[=====>]  2.1K  --.-KB/s"},
+    {name:"ping",desc:"Testa conectividade",example:"$ ping -c 3 google.com",output:"3 packets transmitted, 3 received, 0% loss"}
+  ]
+};
+
+const scripts = {
+  setup:{name:"setup.sh",desc:"Setup de ambiente",lines:[
+    {t:"prompt",v:"chmod +x setup.sh && ./setup.sh"},{t:"",v:"=========================================="},{t:"",v:"  Setup — Ambiente Data Engineering"},{t:"",v:"=========================================="},
+    {t:"",v:""},{t:"",v:"1/5 Atualizando pacotes..."},{t:"green",v:"[OK] Pacotes atualizados"},
+    {t:"",v:""},{t:"",v:"2/5 Instalando ferramentas..."},{t:"green",v:"[OK] python3 ja instalado"},{t:"green",v:"[OK] git ja instalado"},{t:"green",v:"[OK] jq instalado"},{t:"green",v:"[OK] sqlite3 instalado"},{t:"green",v:"[OK] tree instalado"},
+    {t:"",v:""},{t:"",v:"3/5 Criando estrutura de pastas..."},{t:"green",v:"[OK] data/raw criada"},{t:"green",v:"[OK] data/processed criada"},{t:"green",v:"[OK] data/backups criada"},{t:"green",v:"[OK] scripts criada"},{t:"green",v:"[OK] output criada"},{t:"green",v:"[OK] logs criada"},
+    {t:"",v:""},{t:"",v:"4/5 Configurando variaveis..."},{t:"green",v:"[OK] Variaveis adicionadas ao .bashrc"},
+    {t:"",v:""},{t:"",v:"5/5 Verificando instalacao..."},{t:"",v:"  Python:  Python 3.11.2"},{t:"",v:"  Git:     git version 2.39.2"},{t:"",v:"  SQLite:  3.40.1"},{t:"",v:"  jq:      jq-1.6"},
+    {t:"",v:""},{t:"green",v:"[OK] Ambiente configurado com sucesso!"}
+  ]},
+  backup:{name:"backup.sh",desc:"Backup automatico",lines:[
+    {t:"prompt",v:"./backup.sh ../../dados"},{t:"",v:"=========================================="},{t:"",v:"  Backup Automatico"},{t:"",v:"  Data: 2024-03-25 14:30:00"},{t:"",v:"=========================================="},
+    {t:"",v:""},{t:"",v:"Origem:   ../../dados"},{t:"",v:"Arquivos: 3"},{t:"",v:"Tamanho:  12K"},
+    {t:"",v:""},{t:"",v:"Compactando..."},{t:"green",v:"[OK] Backup criado: backup_dados_2024-03-25_14-30-00.tar.gz (4.2K)"},
+    {t:"",v:""},{t:"",v:"Removendo backups com mais de 7 dias..."},{t:"",v:"  Nenhum backup antigo para remover."},
+    {t:"",v:""},{t:"",v:"Backups existentes:"},{t:"",v:"  backup_dados_2024-03-25_14-30-00.tar.gz (4.2K)"},
+    {t:"",v:""},{t:"green",v:"[OK] Backup concluido! (1 backups armazenados)"}
+  ]},
+  processa:{name:"processa.sh",desc:"Processar CSVs",lines:[
+    {t:"prompt",v:"./processa.sh ../../dados"},{t:"",v:"=========================================="},{t:"",v:"  Processamento Batch de CSVs"},{t:"",v:"=========================================="},
+    {t:"",v:""},{t:"blue",v:"[INFO] Encontrados 3 arquivo(s) CSV"},
+    {t:"",v:""},{t:"",v:"──────────────────────────────────"},{t:"green",v:"  Arquivo: vendas_jan.csv"},{t:"",v:"  Tamanho: 4.0K"},{t:"",v:"  Linhas:  10 (+ 1 header)"},{t:"",v:"  Colunas: 6"},{t:"",v:"  Header:  id,produto,categoria,valor,quantidade,data"},{t:"",v:"  Preview:"},{t:"dim",v:"    1,Notebook Dell,Eletronicos,4500.00,2,2024-01-05"},{t:"dim",v:"    2,Mouse Logitech,Perifericos,120.00,15,2024-01-06"},{t:"green",v:"[OK] vendas_jan.csv processado"},
+    {t:"",v:""},{t:"",v:"──────────────────────────────────"},{t:"green",v:"  Arquivo: vendas_fev.csv"},{t:"",v:"  Tamanho: 4.1K"},{t:"",v:"  Linhas:  10 (+ 1 header)"},{t:"green",v:"[OK] vendas_fev.csv processado"},
+    {t:"",v:""},{t:"",v:"──────────────────────────────────"},{t:"green",v:"  Arquivo: vendas_mar.csv"},{t:"",v:"  Tamanho: 4.0K"},{t:"",v:"  Linhas:  10 (+ 1 header)"},{t:"green",v:"[OK] vendas_mar.csv processado"},
+    {t:"",v:""},{t:"",v:"=========================================="},{t:"",v:"  Arquivos processados: 3"},{t:"",v:"  Total de linhas:      30"},{t:"green",v:"[OK] Processamento concluido!"}
+  ]}
+};
+
+// COMMANDS
+const cats = Object.keys(commands);
+const catContainer = document.getElementById('cmdCats');
+const cmdGrid = document.getElementById('cmdGrid');
+let activeCat = cats[0];
+
+cats.forEach(c => {
+  const btn = document.createElement('div');
+  btn.className = 'cmd-cat' + (c === activeCat ? ' active' : '');
+  btn.textContent = c;
+  btn.onclick = () => { activeCat = c; renderCmds(); document.querySelectorAll('.cmd-cat').forEach((b,i) => b.classList.toggle('active', cats[i]===c)); };
+  catContainer.appendChild(btn);
+});
+
+function renderCmds() {
+  cmdGrid.innerHTML = '';
+  commands[activeCat].forEach(cmd => {
+    const card = document.createElement('div');
+    card.className = 'cmd-card';
+    card.innerHTML = `
+      <div class="cmd-name">${cmd.name}</div>
+      <div class="cmd-desc">${cmd.desc}</div>
+      <div class="cmd-detail">
+        <div class="cmd-label">Exemplo</div>
+        <div class="cmd-example"><span class="prompt">${cmd.example}</span>${cmd.output ? '\n<span class="output">' + cmd.output + '</span>' : ''}</div>
+      </div>`;
+    card.onclick = () => card.classList.toggle('expanded');
+    cmdGrid.appendChild(card);
+  });
+}
+renderCmds();
+
+// TERMINAL
+const term = document.getElementById('termBody');
+const btnContainer = document.getElementById('scriptBtns');
+let running = false;
+
+Object.keys(scripts).forEach(key => {
+  const s = scripts[key];
+  const btn = document.createElement('button');
+  btn.className = 'script-btn';
+  btn.textContent = s.name;
+  btn.onclick = () => runScript(key, btn);
+  btnContainer.appendChild(btn);
+});
+
+function addTermLine(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  d.style.marginBottom = '1px';
+  term.appendChild(d);
+  term.scrollTop = term.scrollHeight;
+}
+
+async function runScript(key, btn) {
+  if (running) return;
+  running = true;
+  document.querySelectorAll('.script-btn').forEach(b => { b.disabled = true; b.classList.remove('active'); });
+  btn.classList.add('active');
+  
+  term.innerHTML = '';
+  const s = scripts[key];
+  
+  for (const line of s.lines) {
+    let html = '';
+    if (line.t === 'prompt') html = `<span class="t-green">user@codespace:~$</span> ${line.v}`;
+    else if (line.t === 'green') html = `<span class="t-green">${line.v}</span>`;
+    else if (line.t === 'yellow') html = `<span class="t-yellow">${line.v}</span>`;
+    else if (line.t === 'red') html = `<span class="t-red">${line.v}</span>`;
+    else if (line.t === 'blue') html = `<span class="t-blue">${line.v}</span>`;
+    else if (line.t === 'dim') html = `<span class="t-dim">${line.v}</span>`;
+    else html = line.v;
+    
+    addTermLine(html);
+    await new Promise(r => setTimeout(r, line.t === 'prompt' ? 400 : 60));
+  }
+  
+  running = false;
+  document.querySelectorAll('.script-btn').forEach(b => b.disabled = false);
+}
+
+// Init terminal
+addTermLine('<span class="t-green">user@codespace:~$</span> <span class="t-dim">Clique num script abaixo para executar</span>');
+</script>
+</body>
+</html>

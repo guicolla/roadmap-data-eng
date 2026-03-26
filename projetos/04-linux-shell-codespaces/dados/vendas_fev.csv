@@ -1,0 +1,11 @@
+id,produto,categoria,valor,quantidade,data
+11,Notebook Dell,Eletrônicos,4500.00,3,2024-02-02
+12,Mouse Logitech,Periféricos,120.00,20,2024-02-05
+13,Impressora HP,Eletrônicos,950.00,2,2024-02-08
+14,Pendrive 64GB,Armazenamento,45.00,30,2024-02-10
+15,Monitor LG,Eletrônicos,2100.00,2,2024-02-12
+16,Teclado Mecânico,Periféricos,350.00,5,2024-02-15
+17,Mousepad Gamer,Acessórios,80.00,15,2024-02-18
+18,SSD 500GB,Armazenamento,280.00,8,2024-02-20
+19,Webcam 4K,Periféricos,450.00,3,2024-02-22
+20,Notebook Acer,Eletrônicos,3200.00,2,2024-02-25
