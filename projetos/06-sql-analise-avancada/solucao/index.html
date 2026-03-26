@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Avancado — Spotify | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0c10;--surface:#12161e;--surface-2:#1a1f2b;--border:#252b3b;--text:#d1d5db;--text-dim:#9ca3af;--text-muted:#6b7280;--green:#1DB954;--green-dim:rgba(29,185,84,.12);--blue:#4f9eff;--purple:#a78bfa;--pink:#f472b6;--yellow:#fbbf24;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--green)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}nav a:hover{color:var(--text)}
+.app{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:280px 1fr;gap:16px;min-height:70vh}
+@media(max-width:860px){.app{grid-template-columns:1fr}}
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sidebar-title{font-size:11px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:12px 14px 8px}
+.schema-mini{padding:0 14px 14px;font-family:var(--mono);font-size:10px;line-height:2;color:var(--text-dim)}
+.schema-table{color:var(--green);font-weight:600}.schema-fk{color:var(--purple)}.schema-new{color:var(--yellow);font-weight:600}
+.query-list{display:flex;flex-direction:column}
+.query-item{padding:10px 14px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-size:12px;color:var(--text-dim)}
+.query-item:hover{background:var(--surface-2);color:var(--text)}
+.query-item.active{background:var(--green-dim);border-left-color:var(--green);color:var(--green)}
+.query-num{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-right:6px}
+.query-badge{font-size:9px;font-family:var(--mono);padding:1px 5px;border-radius:2px;margin-left:4px;background:rgba(167,139,250,.12);color:var(--purple)}
+.main-area{display:flex;flex-direction:column;gap:14px}
+.question-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.question-text{font-size:14px;font-weight:600}.question-text em{color:var(--green);font-style:normal}
+.concept-badge{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:rgba(167,139,250,.12);color:var(--purple);margin-left:8px}
+.run-btn{background:var(--green);color:#000;border:none;border-radius:6px;padding:7px 16px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.run-btn:hover{opacity:.85}.run-btn:disabled{opacity:.4;cursor:default}
+.code-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.code-header{background:var(--surface-2);padding:7px 14px;font-family:var(--mono);font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.code-content{padding:14px;font-family:var(--mono);font-size:11px;line-height:2;overflow-x:auto;white-space:pre}
+.sql-kw{color:var(--purple);font-weight:500}.sql-fn{color:var(--blue)}.sql-num{color:var(--yellow)}.sql-cm{color:var(--text-muted);font-style:italic}.sql-col{color:var(--pink)}.sql-str{color:var(--green)}
+.results-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.results-header{background:var(--surface-2);padding:7px 14px;font-family:var(--mono);font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--surface-2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:7px 10px;text-align:left;white-space:nowrap}
+td{padding:7px 10px;border-top:1px solid var(--border);white-space:nowrap}
+tr:hover td{background:rgba(29,185,84,.04)}
+.hl{color:var(--green);font-weight:600}.nm{font-family:var(--mono);color:var(--blue)}
+.empty{padding:30px;text-align:center;color:var(--text-muted);font-size:12px}
+.concepts{max-width:1200px;margin:0 auto;padding:20px 20px 40px}
+.concepts h2{font-size:18px;font-weight:700;margin-bottom:14px}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+.concept-card h3{font-size:13px;font-family:var(--mono);color:var(--purple);margin-bottom:4px}
+.concept-card p{font-size:11px;color:var(--text-dim);line-height:1.6}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:11px;color:var(--text-muted)}footer a{color:var(--green);text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="inner"><div class="title"><span>06</span> SQL Avancado — Spotify</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/06-sql-analise-avancada" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+<div class="app">
+<div class="sidebar">
+  <div class="sidebar-section"><div class="sidebar-title">Star Schema</div><div class="schema-mini">
+    <span class="schema-new">★ streams</span> (fato)<br><span style="margin-left:10px;color:var(--text-muted)">id, <span class="schema-fk">musica_id</span>, <span class="schema-fk">usuario_id</span>, played_at</span><br><br>
+    <span class="schema-new">★ usuarios</span> (dim nova)<br><span style="margin-left:10px;color:var(--text-muted)">id, username, pais, cadastro</span><br><br>
+    <span class="schema-table">artistas</span> · <span class="schema-table">albuns</span> · <span class="schema-table">musicas</span><br><span style="color:var(--text-muted)">(herdadas do P03)</span>
+  </div></div>
+  <div class="sidebar-section"><div class="sidebar-title">Queries</div><div class="query-list" id="qList"></div></div>
+</div>
+<div class="main-area">
+  <div class="question-bar"><div><span class="question-text" id="qText">Selecione uma query</span><span class="concept-badge" id="qConcept" style="display:none"></span></div><button class="run-btn" id="runBtn" disabled>Executar</button></div>
+  <div class="code-box"><div class="code-header" id="cFile">-- selecione uma query</div><div class="code-content" id="cCode"><span class="sql-cm">-- Clique em uma query na sidebar</span></div></div>
+  <div class="results-box"><div class="results-header"><span id="rInfo">Resultados</span><span id="rCount"></span></div><div id="rTable"><div class="empty">Selecione e execute uma query</div></div></div>
+</div>
+</div>
+<div class="concepts"><h2>Conceitos Aprendidos</h2><div class="concept-grid">
+  <div class="concept-card"><h3>CTE (WITH)</h3><p>Query temporaria nomeada. Organiza SQL complexo em blocos.</p></div>
+  <div class="concept-card"><h3>RANK()</h3><p>Numera por ordem. Empates recebem mesmo numero.</p></div>
+  <div class="concept-card"><h3>ROW_NUMBER()</h3><p>Numera sequencialmente. Top N por grupo.</p></div>
+  <div class="concept-card"><h3>PARTITION BY</h3><p>Window Function por grupo sem colapsar linhas.</p></div>
+  <div class="concept-card"><h3>LAG()</h3><p>Acessa linha anterior. Comparar periodos.</p></div>
+  <div class="concept-card"><h3>SUM() OVER</h3><p>Soma acumulada (running total).</p></div>
+</div></div>
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+<script>
+const Q=[
+{id:1,title:"Ranking artistas por streams",badge:"RANK",question:"Quais artistas tem mais <em>streams</em>?",concept:"RANK() Window Function",file:"01-ranking-artistas.sql",
+sql:`<span class="sql-cm">-- Q1: Ranking de artistas por streams</span>\n\n<span class="sql-kw">WITH</span> streams_artista <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> a.<span class="sql-col">nome</span>, a.<span class="sql-col">genero</span>,\n        <span class="sql-fn">COUNT</span>(s.id) <span class="sql-kw">AS</span> total_streams\n    <span class="sql-kw">FROM</span> streams s\n    <span class="sql-kw">JOIN</span> musicas m <span class="sql-kw">ON</span> s.musica_id = m.id\n    <span class="sql-kw">JOIN</span> albuns al <span class="sql-kw">ON</span> m.album_id = al.id\n    <span class="sql-kw">JOIN</span> artistas a <span class="sql-kw">ON</span> al.artista_id = a.id\n    <span class="sql-kw">GROUP BY</span> a.id, a.nome, a.genero\n)\n<span class="sql-kw">SELECT</span> nome, genero, total_streams,\n    <span class="sql-fn">RANK</span>() <span class="sql-kw">OVER</span> (<span class="sql-kw">ORDER BY</span> total_streams <span class="sql-kw">DESC</span>) <span class="sql-kw">AS</span> ranking\n<span class="sql-kw">FROM</span> streams_artista\n<span class="sql-kw">LIMIT</span> <span class="sql-num">10</span>;`,
+cols:["nome","genero","total_streams","ranking"],hl:3,rows:[["The Weeknd", "R&B", "58", "1"], ["Taylor Swift", "Pop", "42", "2"], ["Billie Eilish", "Pop", "36", "3"], ["Imagine Dragons", "Rock", "36", "3"], ["Ed Sheeran", "Pop", "35", "5"], ["Post Malone", "Hip Hop", "34", "6"], ["Anitta", "Pop", "27", "7"], ["BTS", "K-Pop", "26", "8"], ["Luisa Sonza", "Pop", "26", "8"], ["Ariana Grande", "Pop", "25", "10"]]},
+
+{id:2,title:"Streams acumulados por dia",badge:"SUM OVER",question:"Como crescem os <em>streams acumulados</em>?",concept:"SUM() OVER (ORDER BY)",file:"02-streams-acumulados.sql",
+sql:`<span class="sql-kw">WITH</span> streams_diarios <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> <span class="sql-fn">DATE</span>(played_at) <span class="sql-kw">AS</span> data,\n        <span class="sql-fn">COUNT</span>(*) <span class="sql-kw">AS</span> streams_dia\n    <span class="sql-kw">FROM</span> streams\n    <span class="sql-kw">GROUP BY</span> <span class="sql-fn">DATE</span>(played_at)\n)\n<span class="sql-kw">SELECT</span> data, streams_dia,\n    <span class="sql-fn">SUM</span>(streams_dia) <span class="sql-kw">OVER</span> (<span class="sql-kw">ORDER BY</span> data) <span class="sql-kw">AS</span> acumulado\n<span class="sql-kw">FROM</span> streams_diarios;`,
+cols:["data","streams_dia","acumulado"],hl:2,rows:[["2024-01-01", "3", "3"], ["2024-01-02", "1", "4"], ["2024-01-03", "3", "7"], ["2024-01-05", "5", "12"], ["2024-01-06", "4", "16"], ["2024-01-07", "4", "20"], ["2024-01-08", "4", "24"], ["2024-01-09", "1", "25"], ["2024-01-10", "3", "28"], ["2024-01-11", "2", "30"]]},
+
+{id:3,title:"Comparar meses (LAG)",badge:"LAG",question:"Como variam os <em>streams mes a mes</em>?",concept:"LAG() Window Function",file:"03-comparar-meses.sql",
+sql:`<span class="sql-kw">WITH</span> streams_mensais <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> a.nome, <span class="sql-fn">STRFTIME</span>(<span class="sql-str">'%Y-%m'</span>, s.played_at) <span class="sql-kw">AS</span> mes,\n        <span class="sql-fn">COUNT</span>(*) <span class="sql-kw">AS</span> streams\n    <span class="sql-kw">FROM</span> streams s ... <span class="sql-kw">GROUP BY</span> a.id, mes\n)\n<span class="sql-kw">SELECT</span> artista, mes, streams,\n    <span class="sql-fn">LAG</span>(streams) <span class="sql-kw">OVER</span> (<span class="sql-kw">PARTITION BY</span> artista <span class="sql-kw">ORDER BY</span> mes) <span class="sql-kw">AS</span> anterior,\n    streams - <span class="sql-fn">COALESCE</span>(<span class="sql-fn">LAG</span>(...), <span class="sql-num">0</span>) <span class="sql-kw">AS</span> variacao\n<span class="sql-kw">FROM</span> streams_mensais;`,
+cols:["artista","mes","streams","anterior","variacao"],hl:4,rows:[["Taylor Swift", "2024-01", "10", "-", "10"], ["Taylor Swift", "2024-02", "4", "10", "-6"], ["Taylor Swift", "2024-03", "7", "4", "3"], ["Taylor Swift", "2024-04", "7", "7", "0"], ["Taylor Swift", "2024-05", "8", "7", "1"], ["Taylor Swift", "2024-06", "6", "8", "-2"], ["The Weeknd", "2024-01", "10", "-", "10"], ["The Weeknd", "2024-02", "10", "10", "0"], ["The Weeknd", "2024-03", "9", "10", "-1"], ["The Weeknd", "2024-04", "10", "9", "1"], ["The Weeknd", "2024-05", "11", "10", "1"], ["The Weeknd", "2024-06", "8", "11", "-3"]]},
+
+{id:4,title:"Top 3 por genero",badge:"ROW_NUMBER",question:"Quais as <em>top 3 musicas</em> de cada genero?",concept:"ROW_NUMBER() + PARTITION BY",file:"04-top3-por-genero.sql",
+sql:`<span class="sql-kw">WITH</span> ranked <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> a.genero, m.titulo, a.nome,\n        <span class="sql-fn">COUNT</span>(s.id) <span class="sql-kw">AS</span> streams,\n        <span class="sql-fn">ROW_NUMBER</span>() <span class="sql-kw">OVER</span> (\n            <span class="sql-kw">PARTITION BY</span> a.genero\n            <span class="sql-kw">ORDER BY</span> <span class="sql-fn">COUNT</span>(s.id) <span class="sql-kw">DESC</span>\n        ) <span class="sql-kw">AS</span> rn\n    <span class="sql-kw">FROM</span> streams s ... <span class="sql-kw">GROUP BY</span> a.genero, m.id\n)\n<span class="sql-kw">SELECT</span> * <span class="sql-kw">FROM</span> ranked <span class="sql-kw">WHERE</span> rn <= <span class="sql-num">3</span>;`,
+cols:["genero","musica","artista","streams","posicao"],hl:3,rows:[["Hip Hop", "Circles", "Post Malone", "18", "1"], ["Hip Hop", "DNA", "Kendrick Lamar", "12", "2"], ["Hip Hop", "Wow", "Post Malone", "10", "3"], ["K-Pop", "Boy With Luv", "BTS", "16", "1"], ["K-Pop", "Butter", "BTS", "6", "2"], ["K-Pop", "Dynamite", "BTS", "3", "3"], ["Pop", "NDA", "Billie Eilish", "20", "1"], ["Pop", "August", "Taylor Swift", "18", "2"], ["Pop", "Castle on the Hill", "Ed Sheeran", "17", "3"], ["R&B", "Sacrifice", "The Weeknd", "17", "1"], ["R&B", "Heartless", "The Weeknd", "16", "2"], ["R&B", "In Your Eyes", "The Weeknd", "15", "3"], ["Reggaeton", "Dakiti", "Bad Bunny", "10", "1"], ["Reggaeton", "Ojitos Lindos", "Bad Bunny", "4", "2"], ["Reggaeton", "Me Porto Bonito", "Bad Bunny", "3", "3"], ["Rock", "Enemy", "Imagine Dragons", "20", "1"], ["Rock", "Adventure of a Lifetime", "Coldplay", "10", "2"], ["Rock", "Hymn for the Weekend", "Coldplay", "5", "3"], ["Sertanejo", "Supera", "Marilia Mendonca", "12", "1"], ["Sertanejo", "Faz Um Ladin", "Jorge e Mateus", "7", "2"], ["Sertanejo", "Na Hora da Raiva", "Henrique e Juliano", "6", "3"]]},
+
+{id:5,title:"Crescimento de artistas",badge:"CTE+LAG",question:"Quais artistas tiveram maior <em>crescimento</em>?",concept:"CTE multiplas + variacao %",file:"05-crescimento-artistas.sql",
+sql:`<span class="sql-kw">WITH</span> streams_por_mes <span class="sql-kw">AS</span> (...),\ncom_anterior <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> nome, mes, streams,\n        <span class="sql-fn">LAG</span>(streams) <span class="sql-kw">OVER</span> (\n            <span class="sql-kw">PARTITION BY</span> id <span class="sql-kw">ORDER BY</span> mes\n        ) <span class="sql-kw">AS</span> anterior\n    <span class="sql-kw">FROM</span> streams_por_mes\n)\n<span class="sql-kw">SELECT</span> nome, mes, streams, anterior,\n    <span class="sql-fn">ROUND</span>(((streams/<span class="sql-num">1.0</span>/anterior)-<span class="sql-num">1</span>)*<span class="sql-num">100</span>,<span class="sql-num">1</span>) <span class="sql-kw">AS</span> crescimento\n<span class="sql-kw">WHERE</span> anterior > <span class="sql-num">0</span>\n<span class="sql-kw">ORDER BY</span> crescimento <span class="sql-kw">DESC</span>;`,
+cols:["artista","mes","atual","anterior","crescimento_%"],hl:4,rows:[["Imagine Dragons", "2024-04", "8", "1", "700.0"], ["Henrique e Juliano", "2024-05", "5", "1", "400.0"], ["Coldplay", "2024-03", "5", "1", "400.0"], ["Ed Sheeran", "2024-06", "8", "2", "300.0"], ["Ed Sheeran", "2024-03", "11", "3", "266.7"], ["Bad Bunny", "2024-02", "7", "2", "250.0"], ["Billie Eilish", "2024-05", "14", "4", "250.0"], ["Ariana Grande", "2024-04", "7", "2", "250.0"]]},
+
+{id:6,title:"Cohort retencao",badge:"CTE complexa",question:"Qual a <em>retencao</em> dos ouvintes?",concept:"CTE complexa + DATE functions",file:"06-cohort-retencao.sql",
+sql:`<span class="sql-kw">WITH</span> primeiro_stream <span class="sql-kw">AS</span> (\n    <span class="sql-kw">SELECT</span> usuario_id,\n        <span class="sql-fn">STRFTIME</span>(<span class="sql-str">'%Y-%m'</span>, <span class="sql-fn">MIN</span>(played_at)) <span class="sql-kw">AS</span> cohort\n    <span class="sql-kw">FROM</span> streams <span class="sql-kw">GROUP BY</span> usuario_id\n),\natividade <span class="sql-kw">AS</span> (...),\ncohort_data <span class="sql-kw">AS</span> (...)\n<span class="sql-kw">SELECT</span> cohort, tamanho, mes, ativos,\n    <span class="sql-fn">ROUND</span>(ativos*<span class="sql-num">100.0</span>/tamanho, <span class="sql-num">1</span>) <span class="sql-kw">AS</span> retencao\n<span class="sql-kw">FROM</span> cohort_data;`,
+cols:["cohort","tamanho","mes","ativos","retencao_%"],hl:4,rows:[["2024-01", "10", "2024-01", "10", "100.0"], ["2024-01", "10", "2024-02", "10", "100.0"], ["2024-01", "10", "2024-03", "10", "100.0"], ["2024-01", "10", "2024-04", "10", "100.0"], ["2024-01", "10", "2024-05", "10", "100.0"], ["2024-01", "10", "2024-06", "10", "100.0"]]}
+];
+
+const qList=document.getElementById('qList'),qText=document.getElementById('qText'),qConcept=document.getElementById('qConcept'),cCode=document.getElementById('cCode'),cFile=document.getElementById('cFile'),rTable=document.getElementById('rTable'),rInfo=document.getElementById('rInfo'),rCount=document.getElementById('rCount'),rBtn=document.getElementById('runBtn');
+let cur=null,shown=false;
+Q.forEach(q=>{const el=document.createElement('div');el.className='query-item';el.innerHTML=`<span class="query-num">Q${q.id}</span>${q.title}<span class="query-badge">${q.badge}</span>`;el.onclick=()=>sel(q);qList.appendChild(el)});
+function sel(q){cur=q;shown=false;document.querySelectorAll('.query-item').forEach((e,i)=>e.classList.toggle('active',i===q.id-1));qText.innerHTML=q.question;qConcept.textContent=q.concept;qConcept.style.display='inline-block';cCode.innerHTML=q.sql;cFile.textContent=q.file;rBtn.disabled=false;rTable.innerHTML='<div class="empty">Clique "Executar"</div>';rInfo.textContent='Resultados';rCount.textContent=''}
+rBtn.onclick=()=>{if(!cur||shown)return;shown=true;const q=cur;rInfo.textContent=q.file;rCount.textContent=q.rows.length+' linha(s)';let h='<table><thead><tr>';q.cols.forEach(c=>{h+=`<th>${c}</th>`});h+='</tr></thead><tbody>';q.rows.forEach(r=>{h+='<tr>';r.forEach((c,i)=>{const n=!isNaN(c.replace(/[,%.-]/g,''));h+=`<td class="${i===q.hl?'hl':n?'nm':''}">${c}</td>`});h+='</tr>'});h+='</tbody></table>';rTable.innerHTML=h};
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+id,titulo,artista_id,album,duracao_ms,popularidade
+1,Blinding Lights,1,After Hours,200000,97
+2,Save Your Tears,1,After Hours,215000,93
+3,Anti-Hero,2,Midnights,200000,95
+4,Shake It Off,2,1989,219000,90
+5,Me Porto Bonito,3,Un Verano Sin Ti,178000,93
+6,Bad Guy,4,When We All Fall Asleep,194000,96
+7,Shape of You,5,Divide,234000,96
+8,Circles,6,Hollywoods Bleeding,215000,93
+9,Dynamite,7,Map of the Soul,199000,94
+10,Believer,8,Evolve,204000,93
+11,Envolver,9,Versions of Me,185000,87
+12,Yellow,10,Parachutes,269000,85

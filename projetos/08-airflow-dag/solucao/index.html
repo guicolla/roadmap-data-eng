@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airflow DAG — Spotify Pipeline | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0e13;--surface:#141820;--surface-2:#1c2030;--border:#282e40;--text:#d1d5db;--text-dim:#9ca3af;--text-muted:#6b7280;--green:#22c55e;--green-dim:rgba(34,197,94,.12);--yellow:#eab308;--yellow-dim:rgba(234,179,8,.12);--red:#ef4444;--blue:#3b82f6;--purple:#a78bfa;--teal:#14b8a6;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--teal)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}nav a:hover{color:var(--text)}
+.hero{max-width:1100px;margin:0 auto;padding:40px 20px 24px}
+.hero h1{font-size:clamp(24px,4vw,32px);font-weight:700;letter-spacing:-1px;margin-bottom:6px}
+.hero h1 em{font-style:normal;color:var(--teal)}
+.hero p{color:var(--text-dim);font-size:14px}
+.tags{display:flex;gap:6px;margin-top:10px}.tag{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:rgba(20,184,166,.12);color:var(--teal)}
+section{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+section h2{font-size:18px;font-weight:700;margin-bottom:14px}
+
+/* DAG CONFIG */
+.dag-config{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.config-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:12px}
+.config-label{font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px}
+.config-value{font-family:var(--mono);color:var(--teal)}
+
+/* DAG GRAPH */
+.dag-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:30px 20px;margin-bottom:20px}
+.dag-graph{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:20px}
+.dag-node{background:var(--surface-2);border:2px solid var(--border);border-radius:10px;padding:16px 20px;min-width:140px;text-align:center;cursor:pointer;transition:all .3s;position:relative}
+.dag-node:hover{transform:translateY(-2px)}
+.dag-node.pending{border-color:var(--border)}
+.dag-node.running{border-color:var(--yellow);box-shadow:0 0 20px rgba(234,179,8,.2);animation:glow 1.5s ease infinite}
+.dag-node.success{border-color:var(--green);box-shadow:0 0 15px rgba(34,197,94,.15)}
+.dag-node.active{border-color:var(--blue)}
+@keyframes glow{0%,100%{box-shadow:0 0 15px rgba(234,179,8,.15)}50%{box-shadow:0 0 25px rgba(234,179,8,.3)}}
+.node-icon{font-size:24px;margin-bottom:4px}
+.node-name{font-family:var(--mono);font-size:12px;font-weight:600;margin-bottom:2px}
+.node-operator{font-size:10px;color:var(--text-muted)}
+.node-status{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;border:2px solid var(--bg)}
+.pending .node-status{background:var(--text-muted)}
+.running .node-status{background:var(--yellow)}
+.success .node-status{background:var(--green)}
+.dag-arrow{color:var(--text-muted);font-size:20px;padding:0 8px;flex-shrink:0}
+.run-dag-btn{display:block;margin:0 auto;background:var(--teal);color:#000;border:none;border-radius:8px;padding:10px 28px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.run-dag-btn:hover{opacity:.85;transform:translateY(-1px)}
+.run-dag-btn:disabled{opacity:.4;cursor:default;transform:none}
+
+/* DETAIL PANEL */
+.detail{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.detail-tabs{display:flex;border-bottom:1px solid var(--border)}
+.detail-tab{padding:10px 16px;font-size:12px;font-family:var(--mono);cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s}
+.detail-tab:hover{color:var(--text)}
+.detail-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.detail-content{padding:16px;font-family:var(--mono);font-size:11px;line-height:1.9;max-height:250px;overflow-y:auto;white-space:pre-wrap}
+.detail-content::-webkit-scrollbar{width:4px}.detail-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.log-time{color:var(--text-muted)}.log-ok{color:var(--green)}.log-warn{color:var(--yellow)}.log-info{color:var(--blue)}.log-task{color:var(--teal)}
+
+/* TIMELINE */
+.timeline{display:flex;gap:4px;align-items:end;height:60px;margin-top:16px}
+.timeline-bar{flex:1;border-radius:4px 4px 0 0;transition:height .5s;position:relative}
+.timeline-bar.pending{background:var(--border);height:10px}
+.timeline-bar.success{background:var(--green)}
+.timeline-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:9px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap}
+
+.about{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+.about p{color:var(--text-dim);font-size:13px;line-height:1.8}
+.skills-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.skill{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim)}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:11px;color:var(--text-muted)}footer a{color:var(--teal);text-decoration:none}
+@media(max-width:640px){.dag-graph{flex-direction:column}.dag-arrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<nav><div class="inner"><div class="title"><span>08</span> Airflow DAG</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/08-airflow-dag" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+
+<div class="hero"><h1>Airflow: <em>Spotify Pipeline</em></h1><p>DAG com 4 tasks orquestrando ETL de dados do Spotify. Clique em "Executar" para simular a execucao.</p>
+<div class="tags"><span class="tag">Airflow</span><span class="tag">DAG</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">XCom</span></div></div>
+
+<section>
+<h2>DAG: spotify_pipeline</h2>
+<div class="dag-config">
+  <div class="config-item"><div class="config-label">Schedule</div><div class="config-value">@daily</div></div>
+  <div class="config-item"><div class="config-label">Retries</div><div class="config-value">2 (delay 5min)</div></div>
+  <div class="config-item"><div class="config-label">Start Date</div><div class="config-value">2024-01-01</div></div>
+  <div class="config-item"><div class="config-label">Catchup</div><div class="config-value">False</div></div>
+</div>
+
+<div class="dag-area">
+  <div class="dag-graph">
+    <div class="dag-node pending" id="node-check" onclick="showTask('check')"><div class="node-status"></div><div class="node-icon">📁</div><div class="node-name">check_file</div><div class="node-operator">BashOperator</div></div>
+    <div class="dag-arrow">→</div>
+    <div class="dag-node pending" id="node-extract" onclick="showTask('extract')"><div class="node-status"></div><div class="node-icon">📥</div><div class="node-name">extract</div><div class="node-operator">PythonOperator</div></div>
+    <div class="dag-arrow">→</div>
+    <div class="dag-node pending" id="node-transform" onclick="showTask('transform')"><div class="node-status"></div><div class="node-icon">🔄</div><div class="node-name">transform</div><div class="node-operator">PythonOperator</div></div>
+    <div class="dag-arrow">→</div>
+    <div class="dag-node pending" id="node-load" onclick="showTask('load')"><div class="node-status"></div><div class="node-icon">💾</div><div class="node-name">load</div><div class="node-operator">PythonOperator</div></div>
+  </div>
+  <button class="run-dag-btn" id="runBtn" onclick="runDAG()">▶ Executar DAG</button>
+  <div class="timeline" id="timeline" style="margin-top:24px">
+    <div class="timeline-bar pending" id="tl-check" style="height:10px"><span class="timeline-label">check</span></div>
+    <div class="timeline-bar pending" id="tl-extract" style="height:10px"><span class="timeline-label">extract</span></div>
+    <div class="timeline-bar pending" id="tl-transform" style="height:10px"><span class="timeline-label">transform</span></div>
+    <div class="timeline-bar pending" id="tl-load" style="height:10px"><span class="timeline-label">load</span></div>
+  </div>
+</div>
+
+<div class="detail" id="detailPanel">
+  <div class="detail-tabs">
+    <div class="detail-tab active" onclick="switchTab('code')">Codigo</div>
+    <div class="detail-tab" onclick="switchTab('logs')">Logs</div>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+</section>
+
+<section class="about"><h2>O que aprendi</h2><p>Neste projeto aprendi a orquestrar pipelines de dados com Airflow. Entendi DAGs, Operators, dependencias entre tasks, schedules e como passar dados com XCom.</p>
+<div class="skills-list"><span class="skill">DAGs</span><span class="skill">PythonOperator</span><span class="skill">BashOperator</span><span class="skill">XCom</span><span class="skill">Schedule</span><span class="skill">Retries</span><span class="skill">Dependencies</span><span class="skill">Docker Compose</span><span class="skill">Airflow UI</span></div></section>
+
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+
+<script>
+const tasks={
+  check:{code:`<span style="color:#6b7280"># BashOperator</span>\ncheck_file = BashOperator(\n    task_id=<span style="color:#22c55e">"check_file"</span>,\n    bash_command=<span style="color:#22c55e">f"test -f {INPUT_FILE}"</span>,\n)`,
+    logs:[
+      {t:"2024-03-25 10:00:01",m:"[check_file] Starting task",c:"info"},
+      {t:"2024-03-25 10:00:01",m:"Running: test -f /opt/airflow/data/spotify_top10.csv",c:"task"},
+      {t:"2024-03-25 10:00:02",m:"Arquivo encontrado",c:"ok"},
+      {t:"2024-03-25 10:00:02",m:"[check_file] Task completed successfully",c:"ok"}
+    ],dur:20},
+  extract:{code:`<span style="color:#6b7280"># PythonOperator + XCom push</span>\n<span style="color:#a78bfa">def</span> <span style="color:#3b82f6">extract_data</span>(**kwargs):\n    <span style="color:#6b7280"># Lê CSV e retorna via XCom</span>\n    with open(INPUT_FILE) as f:\n        reader = csv.DictReader(f)\n        data = list(reader)\n    print(f<span style="color:#22c55e">"[EXTRACT] {len(data)} registros"</span>)\n    <span style="color:#a78bfa">return</span> data  <span style="color:#6b7280"># auto XCom push</span>`,
+    logs:[
+      {t:"2024-03-25 10:00:03",m:"[extract] Starting task",c:"info"},
+      {t:"2024-03-25 10:00:03",m:"[EXTRACT] Lendo /opt/airflow/data/spotify_top10.csv...",c:"task"},
+      {t:"2024-03-25 10:00:04",m:"[EXTRACT] 10 registros lidos",c:"ok"},
+      {t:"2024-03-25 10:00:04",m:"[extract] Pushing XCom: 10 records",c:"info"},
+      {t:"2024-03-25 10:00:04",m:"[extract] Task completed successfully",c:"ok"}
+    ],dur:35},
+  transform:{code:`<span style="color:#6b7280"># PythonOperator + XCom pull/push</span>\n<span style="color:#a78bfa">def</span> <span style="color:#3b82f6">transform_data</span>(**kwargs):\n    ti = kwargs[<span style="color:#22c55e">"ti"</span>]\n    data = ti.xcom_pull(task_ids=<span style="color:#22c55e">"extract"</span>)\n    \n    transformed = []\n    <span style="color:#a78bfa">for</span> row <span style="color:#a78bfa">in</span> data:\n        transformed.append({\n            <span style="color:#22c55e">"artista"</span>: row[<span style="color:#22c55e">"artista"</span>].title(),\n            <span style="color:#22c55e">"streams_mi"</span>: round(int(row[<span style="color:#22c55e">"streams"</span>])/1e6),\n            <span style="color:#22c55e">"categoria"</span>: <span style="color:#22c55e">"Hit"</span> if pop>=90 else <span style="color:#22c55e">"Popular"</span>\n        })\n    <span style="color:#a78bfa">return</span> transformed`,
+    logs:[
+      {t:"2024-03-25 10:00:05",m:"[transform] Starting task",c:"info"},
+      {t:"2024-03-25 10:00:05",m:"[transform] Pulling XCom from 'extract'...",c:"info"},
+      {t:"2024-03-25 10:00:05",m:"[TRANSFORM] Processando 10 registros...",c:"task"},
+      {t:"2024-03-25 10:00:06",m:"[TRANSFORM] 7 hits, 3 populares",c:"ok"},
+      {t:"2024-03-25 10:00:06",m:"[transform] Task completed successfully",c:"ok"}
+    ],dur:50},
+  load:{code:`<span style="color:#6b7280"># PythonOperator + XCom pull</span>\n<span style="color:#a78bfa">def</span> <span style="color:#3b82f6">load_data</span>(**kwargs):\n    ti = kwargs[<span style="color:#22c55e">"ti"</span>]\n    data = ti.xcom_pull(task_ids=<span style="color:#22c55e">"transform"</span>)\n    \n    output = {\n        <span style="color:#22c55e">"pipeline"</span>: <span style="color:#22c55e">"spotify_pipeline"</span>,\n        <span style="color:#22c55e">"total"</span>: len(data),\n        <span style="color:#22c55e">"data"</span>: data\n    }\n    with open(OUTPUT_FILE, <span style="color:#22c55e">"w"</span>) as f:\n        json.dump(output, f, indent=2)\n    print(<span style="color:#22c55e">"Pipeline concluido!"</span>)`,
+    logs:[
+      {t:"2024-03-25 10:00:07",m:"[load] Starting task",c:"info"},
+      {t:"2024-03-25 10:00:07",m:"[load] Pulling XCom from 'transform'...",c:"info"},
+      {t:"2024-03-25 10:00:07",m:"[LOAD] Salvando 10 registros...",c:"task"},
+      {t:"2024-03-25 10:00:08",m:"[LOAD] Arquivo salvo: spotify_transformed.json",c:"ok"},
+      {t:"2024-03-25 10:00:08",m:"[LOAD] Pipeline concluido com sucesso!",c:"ok"},
+      {t:"2024-03-25 10:00:08",m:"[load] Task completed successfully",c:"ok"}
+    ],dur:30}
+};
+
+let currentTab='code',currentTask='check',running=false;
+const order=['check','extract','transform','load'];
+
+function showTask(id){
+  currentTask=id;
+  document.querySelectorAll('.dag-node').forEach(n=>n.classList.remove('active'));
+  document.getElementById('node-'+id).classList.add('active');
+  renderDetail();
+}
+
+function renderDetail(){
+  const t=tasks[currentTask];
+  const panel=document.getElementById('detailContent');
+  if(currentTab==='code'){
+    panel.innerHTML=t.code;
+  } else {
+    panel.innerHTML=t.logs.map(l=>{
+      const cls=l.c==='ok'?'log-ok':l.c==='warn'?'log-warn':l.c==='task'?'log-task':'log-info';
+      return `<span class="log-time">${l.t}</span> <span class="${cls}">${l.m}</span>`;
+    }).join('\n');
+  }
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.toggle('active',t.textContent.toLowerCase().includes(tab)));
+  renderDetail();
+}
+
+async function runDAG(){
+  if(running)return;
+  running=true;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('runBtn').textContent='⏳ Executando...';
+
+  // Reset
+  order.forEach(id=>{
+    document.getElementById('node-'+id).className='dag-node pending';
+    document.getElementById('tl-'+id).className='timeline-bar pending';
+    document.getElementById('tl-'+id).style.height='10px';
+  });
+
+  for(const id of order){
+    const node=document.getElementById('node-'+id);
+    const bar=document.getElementById('tl-'+id);
+    
+    // Running
+    node.className='dag-node running';
+    currentTask=id;currentTab='logs';
+    document.querySelectorAll('.detail-tab').forEach(t=>t.classList.toggle('active',t.textContent==='Logs'));
+    renderDetail();
+    showTask(id);
+    
+    await new Promise(r=>setTimeout(r,1200));
+    
+    // Success
+    node.className='dag-node success';
+    bar.className='timeline-bar success';
+    bar.style.height=tasks[id].dur+'px';
+    
+    await new Promise(r=>setTimeout(r,300));
+  }
+
+  document.getElementById('runBtn').textContent='✅ DAG Concluida';
+  running=false;
+}
+
+// Init
+showTask('check');
+renderDetail();
+</script>
+</body>
+</html>

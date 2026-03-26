@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker Stack — Spotify | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b0d12;--surface:#131821;--surface-2:#1b2030;--border:#262e42;--text:#d1d5db;--text-dim:#9ca3af;--text-muted:#6b7280;--blue:#2496ED;--blue-dim:rgba(36,150,237,.12);--green:#4EC9B0;--yellow:#DCDCAA;--purple:#a78bfa;--pink:#f472b6;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--blue)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}nav a:hover{color:var(--text)}
+.hero{max-width:1100px;margin:0 auto;padding:40px 20px 24px}
+.hero h1{font-size:clamp(24px,4vw,34px);font-weight:700;letter-spacing:-1px;margin-bottom:6px}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero p{color:var(--text-dim);font-size:14px}
+.tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.tag{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:var(--blue-dim);color:var(--blue)}
+section{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+section h2{font-size:18px;font-weight:700;margin-bottom:14px}
+
+/* ARCHITECTURE */
+.arch{display:flex;flex-direction:column;align-items:center;gap:16px;padding:30px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px}
+.arch-label{font-size:11px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.containers{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.container-card{background:var(--surface-2);border:2px solid var(--border);border-radius:10px;padding:20px;width:220px;cursor:pointer;transition:all .2s;position:relative}
+.container-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 24px rgba(36,150,237,.15)}
+.container-card.active{border-color:var(--blue)}
+.container-icon{font-size:32px;margin-bottom:8px}
+.container-name{font-family:var(--mono);font-size:14px;font-weight:600;margin-bottom:4px}
+.container-image{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.container-port{position:absolute;top:10px;right:10px;font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue)}
+.arch-network{width:100%;max-width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--blue),transparent);position:relative}
+.arch-network-label{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:10px;font-family:var(--mono);color:var(--blue);background:var(--surface);padding:0 8px}
+.arch-volume{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-muted)}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;display:none}
+.detail-panel.show{display:block}
+.detail-header{background:var(--surface-2);padding:12px 16px;font-family:var(--mono);font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.detail-close{cursor:pointer;color:var(--text-muted);font-size:18px}
+.detail-close:hover{color:var(--text)}
+.detail-body{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px}
+@media(max-width:640px){.detail-body{grid-template-columns:1fr}}
+.detail-section h4{font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.detail-list{list-style:none}
+.detail-list li{padding:3px 0;color:var(--text-dim);font-family:var(--mono);font-size:11px}
+.detail-list li span{color:var(--blue)}
+
+/* CODE */
+.code-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.code-header{background:var(--surface-2);padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.code-content{padding:14px;font-family:var(--mono);font-size:11px;line-height:1.9;overflow-x:auto;white-space:pre;color:var(--text-dim)}
+.ck{color:var(--purple)}.cv{color:var(--green)}.cs{color:var(--yellow)}.cc{color:var(--text-muted);font-style:italic}.cn{color:var(--pink)}
+
+.about{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+.about p{color:var(--text-dim);font-size:13px;line-height:1.8}
+.skills-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.skill{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:4px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim)}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:11px;color:var(--text-muted)}footer a{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="inner"><div class="title"><span>07</span> Docker Stack</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/07-docker-stack" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+
+<div class="hero"><h1>Docker <em>Stack Containerizada</em></h1><p>PostgreSQL + pgAdmin + ETL Python rodando em Docker Compose. Clique nos containers abaixo para ver detalhes.</p>
+<div class="tags"><span class="tag">Docker</span><span class="tag">Compose</span><span class="tag">PostgreSQL</span><span class="tag">pgAdmin</span><span class="tag">Python</span></div></div>
+
+<section>
+<h2>Arquitetura</h2>
+<div class="arch">
+  <div class="arch-label">docker-compose.yml</div>
+  <div class="containers">
+    <div class="container-card" data-id="postgres" onclick="showDetail('postgres')">
+      <span class="container-port">:5432</span>
+      <div class="container-icon">🐘</div>
+      <div class="container-name">PostgreSQL</div>
+      <div class="container-image">postgres:15-alpine</div>
+    </div>
+    <div class="container-card" data-id="pgadmin" onclick="showDetail('pgadmin')">
+      <span class="container-port">:5050</span>
+      <div class="container-icon">🖥️</div>
+      <div class="container-name">pgAdmin</div>
+      <div class="container-image">dpage/pgadmin4</div>
+    </div>
+    <div class="container-card" data-id="etl" onclick="showDetail('etl')">
+      <span class="container-port">build</span>
+      <div class="container-icon">🐍</div>
+      <div class="container-name">ETL Python</div>
+      <div class="container-image">Dockerfile custom</div>
+    </div>
+  </div>
+  <div class="arch-network"><span class="arch-network-label">spotify-network</span></div>
+  <div class="arch-volume">📦 Volume: pgdata → /var/lib/postgresql/data</div>
+</div>
+
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header"><span id="detailTitle"></span><span class="detail-close" onclick="hideDetail()">✕</span></div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+</section>
+
+<section>
+<h2>docker-compose.yml</h2>
+<div class="code-box"><div class="code-header">docker-compose.yml</div><div class="code-content"><span class="ck">version:</span> <span class="cs">"3.8"</span>
+
+<span class="ck">services:</span>
+  <span class="cn">postgres:</span>
+    <span class="ck">image:</span> <span class="cv">postgres:15-alpine</span>
+    <span class="ck">container_name:</span> spotify-db
+    <span class="ck">environment:</span>
+      <span class="cv">POSTGRES_USER:</span> ${DB_USER}
+      <span class="cv">POSTGRES_PASSWORD:</span> ${DB_PASSWORD}
+      <span class="cv">POSTGRES_DB:</span> ${DB_NAME}
+    <span class="ck">ports:</span> <span class="cs">"5432:5432"</span>
+    <span class="ck">volumes:</span> pgdata:/var/lib/postgresql/data
+    <span class="ck">healthcheck:</span>
+      <span class="ck">test:</span> pg_isready -U ${DB_USER}
+
+  <span class="cn">pgadmin:</span>
+    <span class="ck">image:</span> <span class="cv">dpage/pgadmin4</span>
+    <span class="ck">ports:</span> <span class="cs">"5050:80"</span>
+    <span class="ck">depends_on:</span>
+      postgres: <span class="ck">condition:</span> service_healthy
+
+  <span class="cn">etl:</span>
+    <span class="ck">build:</span> <span class="cv">.</span>  <span class="cc"># usa Dockerfile local</span>
+    <span class="ck">volumes:</span> ./dados:/app/dados
+    <span class="ck">depends_on:</span>
+      postgres: <span class="ck">condition:</span> service_healthy
+
+<span class="ck">volumes:</span>
+  <span class="cn">pgdata:</span>
+
+<span class="ck">networks:</span>
+  <span class="cn">spotify-net:</span></div></div>
+</section>
+
+<section>
+<h2>Dockerfile</h2>
+<div class="code-box"><div class="code-header">Dockerfile</div><div class="code-content"><span class="ck">FROM</span> <span class="cv">python:3.11-slim</span>
+<span class="ck">WORKDIR</span> /app
+
+<span class="cc"># Dependencias primeiro (cache)</span>
+<span class="ck">COPY</span> scripts/requirements.txt .
+<span class="ck">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="cc"># Codigo e dados</span>
+<span class="ck">COPY</span> scripts/ .
+<span class="ck">COPY</span> dados/ ./dados/
+
+<span class="ck">CMD</span> [<span class="cs">"python"</span>, <span class="cs">"load.py"</span>]</div></div>
+</section>
+
+<section class="about"><h2>O que aprendi</h2><p>Neste projeto aprendi a containerizar uma stack de dados completa. Docker garante que o ambiente roda igual em qualquer maquina — do meu laptop ao servidor de producao.</p>
+<div class="skills-list"><span class="skill">Docker</span><span class="skill">Dockerfile</span><span class="skill">docker-compose</span><span class="skill">Volumes</span><span class="skill">Networks</span><span class="skill">Ports</span><span class="skill">Health checks</span><span class="skill">.env</span><span class="skill">depends_on</span><span class="skill">PostgreSQL</span><span class="skill">pgAdmin</span></div></section>
+
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+
+<script>
+const details = {
+  postgres: {
+    title: "🐘 PostgreSQL — spotify-db",
+    sections: [
+      {title:"Image",items:["postgres:15-alpine"]},
+      {title:"Portas",items:["<span>5432</span> → 5432 (host → container)"]},
+      {title:"Volumes",items:["<span>pgdata</span> → /var/lib/postgresql/data","Dados persistem entre restarts"]},
+      {title:"Environment",items:["POSTGRES_USER = dataeng","POSTGRES_PASSWORD = ***","POSTGRES_DB = spotify"]},
+      {title:"Health Check",items:["pg_isready -U dataeng","Intervalo: 10s, Timeout: 5s, Retries: 5"]},
+      {title:"Network",items:["<span>spotify-network</span>"]}
+    ]
+  },
+  pgadmin: {
+    title: "🖥️ pgAdmin — spotify-pgadmin",
+    sections: [
+      {title:"Image",items:["dpage/pgadmin4:latest"]},
+      {title:"Portas",items:["<span>5050</span> → 80 (acesse localhost:5050)"]},
+      {title:"Environment",items:["PGADMIN_DEFAULT_EMAIL = admin@admin.com","PGADMIN_DEFAULT_PASSWORD = ***"]},
+      {title:"Depends On",items:["<span>postgres</span> (condition: service_healthy)","Só inicia depois que o Postgres estiver pronto"]},
+      {title:"Network",items:["<span>spotify-network</span>"]},
+      {title:"Acesso",items:["Abra http://localhost:5050 no browser","Conecte no Postgres: host=postgres, port=5432"]}
+    ]
+  },
+  etl: {
+    title: "🐍 ETL Python — spotify-etl",
+    sections: [
+      {title:"Build",items:["Dockerfile local (python:3.11-slim)"]},
+      {title:"Volumes",items:["<span>./dados</span> → /app/dados","CSVs montados dentro do container"]},
+      {title:"Environment",items:["DB_HOST = postgres (nome do serviço)","DB_PORT = 5432","DB_USER = dataeng","DB_NAME = spotify"]},
+      {title:"Depends On",items:["<span>postgres</span> (condition: service_healthy)","Aguarda banco ficar pronto antes de rodar"]},
+      {title:"CMD",items:["python load.py","Carrega artistas.csv e musicas.csv no Postgres"]},
+      {title:"Network",items:["<span>spotify-network</span>"]}
+    ]
+  }
+};
+
+function showDetail(id) {
+  const d = details[id];
+  document.querySelectorAll('.container-card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+  document.getElementById('detailTitle').textContent = d.title;
+  let html = '';
+  d.sections.forEach(s => {
+    html += `<div class="detail-section"><h4>${s.title}</h4><ul class="detail-list">`;
+    s.items.forEach(i => { html += `<li>${i}</li>`; });
+    html += '</ul></div>';
+  });
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailPanel').classList.add('show');
+}
+
+function hideDetail() {
+  document.getElementById('detailPanel').classList.remove('show');
+  document.querySelectorAll('.container-card').forEach(c => c.classList.remove('active'));
+}
+</script>
+</body>
+</html>
