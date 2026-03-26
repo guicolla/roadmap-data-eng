@@ -1,0 +1,5 @@
+id,nome,tipo_primario,tipo_secundario,hp,ataque,defesa,ataque_especial,defesa_especial,velocidade,total_stats,altura_m,peso_kg,categoria,ranking
+1,Bulbasaur,grass,poison,45,49,49,65,65,45,318,0.7,6.9,Mediano,15
+4,Charmander,fire,Nenhum,39,52,43,60,50,65,309,0.6,8.5,Mediano,17
+7,Squirtle,water,Nenhum,44,48,65,50,64,43,314,0.5,9.0,Mediano,16
+25,Pikachu,electric,Nenhum,35,55,40,50,50,90,320,0.4,6.0,Mediano,14

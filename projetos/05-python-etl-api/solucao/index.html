@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Pipeline — PokeAPI | Data Engineering Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0c0c0c;--surface:#151515;--surface-2:#1e1e1e;--border:#282828;
+    --text:#ddd;--text-dim:#999;--text-muted:#666;
+    --accent:#E74C3C;--accent-dim:rgba(231,76,60,0.12);
+    --blue:#3498db;--green:#2ecc71;--yellow:#f1c40f;--purple:#9b59b6;
+    --font:'Outfit',sans-serif;--mono:'Fira Code',monospace;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+  
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(12,12,12,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+  nav .inner{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
+  nav .title{font-weight:600;font-size:14px;font-family:var(--mono)}
+  nav .title span{color:var(--accent)}
+  nav .links{display:flex;gap:16px}
+  nav .links a{color:var(--text-muted);text-decoration:none;font-size:12px;transition:color 0.2s}
+  nav .links a:hover{color:var(--text)}
+  .badge{display:inline-block;font-size:10px;font-family:var(--mono);padding:3px 8px;border-radius:3px;font-weight:500}
+  .badge-red{background:var(--accent-dim);color:var(--accent)}
+  .badge-blue{background:rgba(52,152,219,0.12);color:var(--blue)}
+  .badge-green{background:rgba(46,204,113,0.12);color:var(--green)}
+
+  /* HERO */
+  .hero{max-width:1000px;margin:0 auto;padding:60px 24px 40px}
+  .hero h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{font-size:15px;color:var(--text-dim);max-width:600px}
+  .hero .tags{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+
+  /* FLOW DIAGRAM */
+  .flow{max-width:1000px;margin:0 auto;padding:20px 24px 40px}
+  .flow-title{font-size:11px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+  .flow-steps{display:flex;align-items:center;gap:0;overflow-x:auto;padding:8px 0}
+  .flow-step{flex-shrink:0;text-align:center;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;min-width:130px}
+  .flow-step .icon{font-size:24px;margin-bottom:4px}
+  .flow-step .label{font-size:12px;font-weight:600}
+  .flow-step .sub{font-size:10px;color:var(--text-muted);font-family:var(--mono)}
+  .flow-arrow{flex-shrink:0;color:var(--text-muted);font-size:18px;padding:0 4px}
+
+  /* METRICS */
+  .metrics{max-width:1000px;margin:0 auto;padding:0 24px 40px}
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+  .metric .value{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--accent)}
+  .metric .label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+
+  /* TABLE */
+  .table-section{max-width:1000px;margin:0 auto;padding:0 24px 40px}
+  .table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+  .table-header h2{font-size:20px;font-weight:700}
+  .search-box{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 14px;color:var(--text);font-size:13px;font-family:var(--font);width:240px}
+  .search-box:focus{outline:none;border-color:var(--accent)}
+  .filter-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 10px;color:var(--text-dim);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all 0.2s}
+  .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--surface-2);font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);padding:10px 12px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap}
+  th:hover{color:var(--accent)}
+  td{padding:10px 12px;border-top:1px solid var(--border);white-space:nowrap}
+  tr:hover td{background:var(--surface)}
+  .sprite{width:32px;height:32px;image-rendering:pixelated}
+  .type-badge{font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--mono)}
+
+  /* CODE */
+  .code-section{max-width:1000px;margin:0 auto;padding:0 24px 40px}
+  .code-section h2{font-size:20px;font-weight:700;margin-bottom:16px}
+  .code-block{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--text-dim)}
+  .code-block .comment{color:#555}
+  .code-block .keyword{color:var(--accent)}
+  .code-block .string{color:var(--green)}
+  .code-block .func{color:var(--blue)}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:24px;text-align:center;max-width:1000px;margin:0 auto}
+  footer p{font-size:12px;color:var(--text-muted)}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media(max-width:640px){
+    .hero{padding:40px 16px 24px}
+    .flow-steps{gap:0}
+    .metrics-grid{grid-template-columns:repeat(2,1fr)}
+    .search-box{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <div class="title"><span>05</span> ETL Pipeline — PokeAPI</div>
+    <div class="links">
+      <a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/05-python-etl-api" target="_blank">GitHub</a>
+      <a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>ETL Pipeline: <em>PokeAPI</em></h1>
+  <p>Pipeline que extrai dados de 50 Pokemon da PokeAPI, transforma com pandas (limpeza, conversao de unidades, categorização) e carrega em CSV e SQLite.</p>
+  <div class="tags">
+    <span class="badge badge-red">Python</span>
+    <span class="badge badge-blue">pandas</span>
+    <span class="badge badge-green">requests</span>
+    <span class="badge badge-red">SQLite</span>
+    <span class="badge badge-blue">PokeAPI</span>
+  </div>
+</section>
+
+<section class="flow">
+  <div class="flow-title">Fluxo do Pipeline</div>
+  <div class="flow-steps">
+    <div class="flow-step"><div class="icon">🌐</div><div class="label">PokeAPI</div><div class="sub">REST API</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="icon">📥</div><div class="label">Extract</div><div class="sub">requests</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="icon">🔄</div><div class="label">Transform</div><div class="sub">pandas</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="icon">📊</div><div class="label">CSV</div><div class="sub">.csv</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="icon">🗄️</div><div class="label">SQLite</div><div class="sub">.db</div></div>
+  </div>
+</section>
+
+<section class="metrics">
+  <div class="metrics-grid">
+    <div class="metric"><div class="value" id="totalPokemon">0</div><div class="label">Pokemon</div></div>
+    <div class="metric"><div class="value" id="totalTypes">0</div><div class="label">Tipos</div></div>
+    <div class="metric"><div class="value" id="avgStats">0</div><div class="label">Media Stats</div></div>
+    <div class="metric"><div class="value" id="maxStats">0</div><div class="label">Max Stats</div></div>
+    <div class="metric"><div class="value" id="avgHeight">0</div><div class="label">Altura Media</div></div>
+    <div class="metric"><div class="value" id="avgWeight">0</div><div class="label">Peso Medio</div></div>
+  </div>
+</section>
+
+<section class="table-section">
+  <div class="table-header">
+    <h2>Dados Extraidos</h2>
+    <input type="text" class="search-box" placeholder="Buscar Pokemon..." id="searchBox">
+  </div>
+  <div class="filter-btns" id="filterBtns">
+    <button class="filter-btn active" data-type="all">Todos</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="id">#</th>
+          <th></th>
+          <th data-sort="nome">Nome</th>
+          <th data-sort="tipo_primario">Tipo</th>
+          <th data-sort="hp">HP</th>
+          <th data-sort="ataque">ATK</th>
+          <th data-sort="defesa">DEF</th>
+          <th data-sort="velocidade">SPD</th>
+          <th data-sort="total_stats">Total</th>
+          <th data-sort="categoria">Categoria</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="code-section">
+  <h2>Codigo do Pipeline</h2>
+  <div class="code-block">
+<span class="comment"># Funcao principal de transformacao</span>
+<span class="keyword">def</span> <span class="func">transform</span>(details: list[dict]) -> pd.DataFrame:
+    records = []
+    <span class="keyword">for</span> d <span class="keyword">in</span> details:
+        stats = {s[<span class="string">"stat"</span>][<span class="string">"name"</span>]: s[<span class="string">"base_stat"</span>] <span class="keyword">for</span> s <span class="keyword">in</span> d[<span class="string">"stats"</span>]}
+        records.<span class="func">append</span>({
+            <span class="string">"nome"</span>: d[<span class="string">"name"</span>].<span class="func">capitalize</span>(),
+            <span class="string">"tipo_primario"</span>: d[<span class="string">"types"</span>][0][<span class="string">"type"</span>][<span class="string">"name"</span>],
+            <span class="string">"hp"</span>: stats.<span class="func">get</span>(<span class="string">"hp"</span>, 0),
+            <span class="comment">... # demais campos</span>
+        })
+
+    df = pd.<span class="func">DataFrame</span>(records)
+    
+    <span class="comment"># Converter unidades</span>
+    df[<span class="string">"altura_m"</span>] = df[<span class="string">"altura_dm"</span>] / 10
+    df[<span class="string">"peso_kg"</span>] = df[<span class="string">"peso_hg"</span>] / 10
+    
+    <span class="comment"># Classificar por poder</span>
+    df[<span class="string">"categoria"</span>] = pd.<span class="func">cut</span>(
+        df[<span class="string">"total_stats"</span>],
+        bins=[0, 300, 400, 500, 600, 999],
+        labels=[<span class="string">"Fraco"</span>, <span class="string">"Mediano"</span>, <span class="string">"Forte"</span>, <span class="string">"Muito Forte"</span>, <span class="string">"Lendario"</span>]
+    )
+    <span class="keyword">return</span> df
+  </div>
+</section>
+
+<footer>
+  <p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap Data Engineering — GC Data Academy</a></p>
+</footer>
+
+<script>
+// Mock data - 50 Pokemon
+const typeColors = {grass:"#4caf50",fire:"#ff5722",water:"#2196f3",bug:"#8bc34a",normal:"#9e9e9e",poison:"#9c27b0",electric:"#ffc107",ground:"#795548",fairy:"#e91e63",fighting:"#ff5722",psychic:"#e91e63",rock:"#795548",ghost:"#673ab7",ice:"#00bcd4",dragon:"#3f51b5",flying:"#90a4ae",steel:"#607d8b",dark:"#37474f"};
+
+const pokemon = [
+  {id:1,nome:"Bulbasaur",tipo_primario:"grass",tipo_secundario:"poison",hp:45,ataque:49,defesa:49,ataque_especial:65,defesa_especial:65,velocidade:45,total_stats:318,altura_m:0.7,peso_kg:6.9,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"},
+  {id:2,nome:"Ivysaur",tipo_primario:"grass",tipo_secundario:"poison",hp:60,ataque:62,defesa:63,ataque_especial:80,defesa_especial:80,velocidade:60,total_stats:405,altura_m:1.0,peso_kg:13.0,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png"},
+  {id:3,nome:"Venusaur",tipo_primario:"grass",tipo_secundario:"poison",hp:80,ataque:82,defesa:83,ataque_especial:100,defesa_especial:100,velocidade:80,total_stats:525,altura_m:2.0,peso_kg:100.0,categoria:"Muito Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png"},
+  {id:4,nome:"Charmander",tipo_primario:"fire",tipo_secundario:"Nenhum",hp:39,ataque:52,defesa:43,ataque_especial:60,defesa_especial:50,velocidade:65,total_stats:309,altura_m:0.6,peso_kg:8.5,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png"},
+  {id:5,nome:"Charmeleon",tipo_primario:"fire",tipo_secundario:"Nenhum",hp:58,ataque:64,defesa:58,ataque_especial:80,defesa_especial:65,velocidade:80,total_stats:405,altura_m:1.1,peso_kg:19.0,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png"},
+  {id:6,nome:"Charizard",tipo_primario:"fire",tipo_secundario:"flying",hp:78,ataque:84,defesa:78,ataque_especial:109,defesa_especial:85,velocidade:100,total_stats:534,altura_m:1.7,peso_kg:90.5,categoria:"Muito Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png"},
+  {id:7,nome:"Squirtle",tipo_primario:"water",tipo_secundario:"Nenhum",hp:44,ataque:48,defesa:65,ataque_especial:50,defesa_especial:64,velocidade:43,total_stats:314,altura_m:0.5,peso_kg:9.0,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png"},
+  {id:8,nome:"Wartortle",tipo_primario:"water",tipo_secundario:"Nenhum",hp:59,ataque:63,defesa:80,ataque_especial:65,defesa_especial:80,velocidade:58,total_stats:405,altura_m:1.0,peso_kg:22.5,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png"},
+  {id:9,nome:"Blastoise",tipo_primario:"water",tipo_secundario:"Nenhum",hp:79,ataque:83,defesa:100,ataque_especial:85,defesa_especial:105,velocidade:78,total_stats:530,altura_m:1.6,peso_kg:85.5,categoria:"Muito Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png"},
+  {id:10,nome:"Caterpie",tipo_primario:"bug",tipo_secundario:"Nenhum",hp:45,ataque:30,defesa:35,ataque_especial:20,defesa_especial:20,velocidade:45,total_stats:195,altura_m:0.3,peso_kg:2.9,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png"},
+  {id:11,nome:"Metapod",tipo_primario:"bug",tipo_secundario:"Nenhum",hp:50,ataque:20,defesa:55,ataque_especial:25,defesa_especial:25,velocidade:30,total_stats:205,altura_m:0.7,peso_kg:9.9,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png"},
+  {id:12,nome:"Butterfree",tipo_primario:"bug",tipo_secundario:"flying",hp:60,ataque:45,defesa:50,ataque_especial:90,defesa_especial:80,velocidade:70,total_stats:395,altura_m:1.1,peso_kg:32.0,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png"},
+  {id:13,nome:"Weedle",tipo_primario:"bug",tipo_secundario:"poison",hp:40,ataque:35,defesa:30,ataque_especial:20,defesa_especial:20,velocidade:50,total_stats:195,altura_m:0.3,peso_kg:3.2,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png"},
+  {id:14,nome:"Kakuna",tipo_primario:"bug",tipo_secundario:"poison",hp:45,ataque:25,defesa:50,ataque_especial:25,defesa_especial:25,velocidade:35,total_stats:205,altura_m:0.6,peso_kg:10.0,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png"},
+  {id:15,nome:"Beedrill",tipo_primario:"bug",tipo_secundario:"poison",hp:65,ataque:90,defesa:40,ataque_especial:45,defesa_especial:80,velocidade:75,total_stats:395,altura_m:1.0,peso_kg:29.5,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png"},
+  {id:16,nome:"Pidgey",tipo_primario:"normal",tipo_secundario:"flying",hp:40,ataque:45,defesa:40,ataque_especial:35,defesa_especial:35,velocidade:56,total_stats:251,altura_m:0.3,peso_kg:1.8,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png"},
+  {id:17,nome:"Pidgeotto",tipo_primario:"normal",tipo_secundario:"flying",hp:63,ataque:60,defesa:55,ataque_especial:50,defesa_especial:50,velocidade:71,total_stats:349,altura_m:1.1,peso_kg:30.0,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png"},
+  {id:18,nome:"Pidgeot",tipo_primario:"normal",tipo_secundario:"flying",hp:83,ataque:80,defesa:75,ataque_especial:70,defesa_especial:70,velocidade:101,total_stats:479,altura_m:1.5,peso_kg:39.5,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png"},
+  {id:19,nome:"Rattata",tipo_primario:"normal",tipo_secundario:"Nenhum",hp:30,ataque:56,defesa:35,ataque_especial:25,defesa_especial:35,velocidade:72,total_stats:253,altura_m:0.3,peso_kg:3.5,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png"},
+  {id:20,nome:"Raticate",tipo_primario:"normal",tipo_secundario:"Nenhum",hp:55,ataque:81,defesa:60,ataque_especial:50,defesa_especial:70,velocidade:97,total_stats:413,altura_m:0.7,peso_kg:18.5,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png"},
+  {id:25,nome:"Pikachu",tipo_primario:"electric",tipo_secundario:"Nenhum",hp:35,ataque:55,defesa:40,ataque_especial:50,defesa_especial:50,velocidade:90,total_stats:320,altura_m:0.4,peso_kg:6.0,categoria:"Mediano",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png"},
+  {id:26,nome:"Raichu",tipo_primario:"electric",tipo_secundario:"Nenhum",hp:60,ataque:90,defesa:55,ataque_especial:90,defesa_especial:80,velocidade:110,total_stats:485,altura_m:0.8,peso_kg:30.0,categoria:"Forte",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png"},
+  {id:37,nome:"Vulpix",tipo_primario:"fire",tipo_secundario:"Nenhum",hp:38,ataque:41,defesa:40,ataque_especial:50,defesa_especial:65,velocidade:65,total_stats:299,altura_m:0.6,peso_kg:9.9,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/37.png"},
+  {id:39,nome:"Jigglypuff",tipo_primario:"normal",tipo_secundario:"fairy",hp:115,ataque:45,defesa:20,ataque_especial:45,defesa_especial:25,velocidade:20,total_stats:270,altura_m:0.5,peso_kg:5.5,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/39.png"},
+  {id:50,nome:"Diglett",tipo_primario:"ground",tipo_secundario:"Nenhum",hp:10,ataque:55,defesa:25,ataque_especial:35,defesa_especial:45,velocidade:95,total_stats:265,altura_m:0.2,peso_kg:0.8,categoria:"Fraco",sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/50.png"}
+];
+
+let currentFilter = "all";
+let currentSort = {key:"id",asc:true};
+let searchTerm = "";
+
+// Build type filter buttons
+const types = [...new Set(pokemon.map(p=>p.tipo_primario))].sort();
+const filterContainer = document.getElementById('filterBtns');
+types.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn';
+  btn.dataset.type = t;
+  btn.textContent = t;
+  btn.style.borderColor = typeColors[t]||'#333';
+  filterContainer.appendChild(btn);
+});
+
+// Metrics
+document.getElementById('totalPokemon').textContent = pokemon.length;
+document.getElementById('totalTypes').textContent = types.length;
+document.getElementById('avgStats').textContent = Math.round(pokemon.reduce((a,p)=>a+p.total_stats,0)/pokemon.length);
+document.getElementById('maxStats').textContent = Math.max(...pokemon.map(p=>p.total_stats));
+document.getElementById('avgHeight').textContent = (pokemon.reduce((a,p)=>a+p.altura_m,0)/pokemon.length).toFixed(1)+'m';
+document.getElementById('avgWeight').textContent = (pokemon.reduce((a,p)=>a+p.peso_kg,0)/pokemon.length).toFixed(1)+'kg';
+
+// Animate metrics
+document.querySelectorAll('.metric .value').forEach(el => {
+  const final = el.textContent;
+  const num = parseFloat(final);
+  if(isNaN(num)) return;
+  const suffix = final.replace(/[\d.]/g,'');
+  let current = 0;
+  const step = num / 30;
+  const timer = setInterval(() => {
+    current += step;
+    if(current >= num){current = num; clearInterval(timer);}
+    el.textContent = (Number.isInteger(num)?Math.round(current):current.toFixed(1)) + suffix;
+  }, 30);
+});
+
+function renderTable() {
+  let data = [...pokemon];
+  if(currentFilter !== "all") data = data.filter(p=>p.tipo_primario===currentFilter);
+  if(searchTerm) data = data.filter(p=>p.nome.toLowerCase().includes(searchTerm));
+  data.sort((a,b) => {
+    let va=a[currentSort.key], vb=b[currentSort.key];
+    if(typeof va==='string') return currentSort.asc?va.localeCompare(vb):vb.localeCompare(va);
+    return currentSort.asc?va-vb:vb-va;
+  });
+  
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td style="font-family:var(--mono);color:var(--text-muted)">${p.id}</td>
+      <td><img src="${p.sprite}" class="sprite" alt="${p.nome}"></td>
+      <td style="font-weight:600">${p.nome}</td>
+      <td><span class="type-badge" style="background:${typeColors[p.tipo_primario]||'#333'}22;color:${typeColors[p.tipo_primario]||'#999'}">${p.tipo_primario}</span></td>
+      <td>${p.hp}</td>
+      <td>${p.ataque}</td>
+      <td>${p.defesa}</td>
+      <td>${p.velocidade}</td>
+      <td style="font-weight:700;color:var(--accent)">${p.total_stats}</td>
+      <td><span class="badge ${p.categoria==='Muito Forte'||p.categoria==='Lendario'?'badge-red':p.categoria==='Forte'?'badge-blue':'badge-green'}">${p.categoria}</span></td>
+    </tr>
+  `).join('');
+}
+
+// Filter buttons
+document.getElementById('filterBtns').addEventListener('click', e => {
+  if(!e.target.classList.contains('filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentFilter = e.target.dataset.type;
+  renderTable();
+});
+
+// Sort headers
+document.querySelectorAll('th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if(currentSort.key===key) currentSort.asc=!currentSort.asc;
+    else { currentSort.key=key; currentSort.asc=true; }
+    renderTable();
+  });
+});
+
+// Search
+document.getElementById('searchBox').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase();
+  renderTable();
+});
+
+renderTable();
+</script>
+</body>
+</html>
