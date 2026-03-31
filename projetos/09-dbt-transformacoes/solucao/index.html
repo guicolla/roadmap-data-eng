@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dbt Lineage — Spotify Analytics | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0e12;--surface:#141822;--surface-2:#1c2230;--border:#262e3e;--text:#d1d5db;--text-dim:#9ca3af;--text-muted:#6b7280;--orange:#FF694A;--orange-dim:rgba(255,105,74,.12);--green:#22c55e;--green-dim:rgba(34,197,94,.12);--blue:#3b82f6;--blue-dim:rgba(59,130,246,.12);--yellow:#eab308;--yellow-dim:rgba(234,179,8,.12);--purple:#a78bfa;--font:'Outfit',sans-serif;--mono:'Fira Code',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;position:sticky;top:0;z-index:50}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+nav .title{font-family:var(--mono);font-size:13px}.title span{color:var(--orange)}
+nav a{color:var(--text-muted);text-decoration:none;font-size:12px}nav a:hover{color:var(--text)}
+.hero{max-width:1200px;margin:0 auto;padding:36px 20px 20px}
+.hero h1{font-size:clamp(22px,3.5vw,30px);font-weight:700;letter-spacing:-.5px;margin-bottom:4px}
+.hero h1 em{font-style:normal;color:var(--orange)}
+.hero p{color:var(--text-dim);font-size:13px}
+.tags{display:flex;gap:6px;margin-top:8px}.tag{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;background:var(--orange-dim);color:var(--orange)}
+.stats-row{display:flex;gap:10px;margin:16px auto 0;max-width:1200px;padding:0 20px;flex-wrap:wrap}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
+.stat .v{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--orange)}.stat .l{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* LINEAGE */
+section{max-width:1200px;margin:0 auto;padding:20px}
+.lineage-area{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:12px}
+@media(max-width:860px){.lineage-area{grid-template-columns:1fr}}
+.lineage-graph{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:30px 20px;display:flex;flex-direction:column;align-items:center;gap:20px;min-height:380px}
+.layer-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;width:100%;text-align:center}
+.layer-nodes{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.node{background:var(--surface-2);border:2px solid var(--border);border-radius:8px;padding:12px 16px;min-width:130px;text-align:center;cursor:pointer;transition:all .2s}
+.node:hover{transform:translateY(-2px)}
+.node.active{border-color:var(--orange)}
+.node-type{font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:2px;display:inline-block;margin-bottom:4px}
+.seed .node-type{background:var(--yellow-dim);color:var(--yellow)}
+.stg .node-type{background:var(--blue-dim);color:var(--blue)}
+.mart .node-type{background:var(--green-dim);color:var(--green)}
+.node-name{font-family:var(--mono);font-size:11px;font-weight:600}
+.node-mat{font-size:9px;color:var(--text-muted)}
+.arrows{color:var(--text-muted);font-size:20px;display:flex;gap:40px}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.detail-header{background:var(--surface-2);padding:10px 14px;font-family:var(--mono);font-size:12px;font-weight:600;border-bottom:1px solid var(--border)}
+.detail-tabs{display:flex;border-bottom:1px solid var(--border)}
+.dtab{padding:8px 12px;font-size:11px;font-family:var(--mono);cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent}
+.dtab:hover{color:var(--text)}.dtab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.detail-body{padding:14px;font-family:var(--mono);font-size:11px;line-height:1.9;flex:1;overflow-y:auto;max-height:280px;white-space:pre-wrap}
+.detail-body::-webkit-scrollbar{width:4px}.detail-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sk{color:var(--purple)}.sf{color:var(--blue)}.ss{color:var(--green)}.sc{color:var(--text-muted);font-style:italic}.sn{color:var(--yellow)}
+.test-list{list-style:none;padding:0}.test-item{padding:4px 0;display:flex;align-items:center;gap:6px;font-size:11px}
+.test-pass{color:var(--green)}.test-name{color:var(--text-dim)}
+
+/* CONCEPTS */
+.concepts{max-width:1200px;margin:0 auto;padding:20px}
+.concepts h2{font-size:16px;font-weight:700;margin-bottom:12px}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px}
+.concept-card h3{font-size:11px;font-family:var(--mono);color:var(--orange);margin-bottom:3px}
+.concept-card p{font-size:10px;color:var(--text-dim);line-height:1.5}
+footer{border-top:1px solid var(--border);padding:16px;text-align:center}
+footer p{font-size:10px;color:var(--text-muted)}footer a{color:var(--orange);text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="inner"><div class="title"><span>09</span> dbt Lineage</div><div style="display:flex;gap:14px"><a href="https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/09-dbt-transformacoes" target="_blank">GitHub</a><a href="https://guicolla.github.io/roadmap-data-eng" target="_blank">Roadmap</a></div></div></nav>
+<div class="hero"><h1>dbt: <em>Spotify Analytics</em></h1><p>Projeto dbt com seeds, staging, marts, testes e documentacao. Clique nos models pra ver detalhes.</p>
+<div class="tags"><span class="tag">dbt</span><span class="tag">SQL</span><span class="tag">PostgreSQL</span><span class="tag">Testes</span><span class="tag">Lineage</span></div></div>
+<div class="stats-row"><div class="stat"><div class="v">3</div><div class="l">Seeds</div></div><div class="stat"><div class="v">3</div><div class="l">Staging</div></div><div class="stat"><div class="v">2</div><div class="l">Marts</div></div><div class="stat"><div class="v">16</div><div class="l">Testes</div></div><div class="stat"><div class="v">✅</div><div class="l">All Pass</div></div></div>
+
+<section>
+<div class="lineage-area">
+<div class="lineage-graph">
+  <div class="layer-label">Seeds (CSV)</div>
+  <div class="layer-nodes">
+    <div class="node seed" onclick="show('artistas')"><div class="node-type">seed</div><div class="node-name">artistas</div><div class="node-mat">10 rows</div></div>
+    <div class="node seed" onclick="show('musicas')"><div class="node-type">seed</div><div class="node-name">musicas</div><div class="node-mat">12 rows</div></div>
+    <div class="node seed" onclick="show('streams')"><div class="node-type">seed</div><div class="node-name">streams</div><div class="node-mat">200 rows</div></div>
+  </div>
+  <div class="arrows">↓ &nbsp; ↓ &nbsp; ↓</div>
+  <div class="layer-label">Staging (views)</div>
+  <div class="layer-nodes">
+    <div class="node stg" onclick="show('stg_artistas')"><div class="node-type">view</div><div class="node-name">stg_artistas</div><div class="node-mat">3 testes</div></div>
+    <div class="node stg" onclick="show('stg_musicas')"><div class="node-type">view</div><div class="node-name">stg_musicas</div><div class="node-mat">4 testes</div></div>
+    <div class="node stg" onclick="show('stg_streams')"><div class="node-type">view</div><div class="node-name">stg_streams</div><div class="node-mat">3 testes</div></div>
+  </div>
+  <div class="arrows">↘ &nbsp; ↓ &nbsp; ↙</div>
+  <div class="layer-label">Marts (tables)</div>
+  <div class="layer-nodes">
+    <div class="node mart" onclick="show('dim_artistas')"><div class="node-type">table</div><div class="node-name">dim_artistas</div><div class="node-mat">2 testes</div></div>
+    <div class="node mart" onclick="show('fct_streams')"><div class="node-type">table</div><div class="node-name">fct_streams_diarios</div><div class="node-mat">2 testes</div></div>
+  </div>
+</div>
+
+<div class="detail-panel">
+  <div class="detail-header" id="dTitle">Clique num model</div>
+  <div class="detail-tabs">
+    <div class="dtab active" onclick="stab('sql')">SQL</div>
+    <div class="dtab" onclick="stab('tests')">Testes</div>
+    <div class="dtab" onclick="stab('desc')">Descricao</div>
+  </div>
+  <div class="detail-body" id="dBody"><span class="sc">-- Selecione um model no grafo</span></div>
+</div>
+</div>
+</section>
+
+<div class="concepts"><h2>Conceitos dbt</h2><div class="concept-grid">
+<div class="concept-card"><h3>Seeds</h3><p>CSVs carregados no banco com dbt seed. Dados de referencia.</p></div>
+<div class="concept-card"><h3>Staging</h3><p>Views que limpam dados brutos. Prefixo stg_. Materialized: view.</p></div>
+<div class="concept-card"><h3>Marts</h3><p>Tabelas finais pra analise. dim_ e fct_. Materialized: table.</p></div>
+<div class="concept-card"><h3>ref()</h3><p>Referencia entre models. dbt resolve dependencias automaticamente.</p></div>
+<div class="concept-card"><h3>Tests</h3><p>unique, not_null, accepted_values, relationships. Garante qualidade.</p></div>
+<div class="concept-card"><h3>Docs</h3><p>Descricoes em schema.yml. dbt docs generate cria site completo.</p></div>
+</div></div>
+
+<footer><p>Projeto do <a href="https://guicolla.github.io/roadmap-data-eng">Roadmap Data Engineering — GC Data Academy</a></p></footer>
+
+<script>
+const M={
+artistas:{title:"seed: artistas",sql:`<span class="sc">-- CSV carregado com dbt seed</span>\n<span class="sc">-- 10 artistas com nome, genero, pais, seguidores</span>\nid,nome,genero,pais,seguidores\n1,The Weeknd,R&B,Canada,55000000\n2,Taylor Swift,Pop,EUA,90000000\n...`,tests:["Seed — sem testes (dados de entrada)"],desc:"CSV com 10 artistas do Spotify. Carregado no schema raw com dbt seed."},
+musicas:{title:"seed: musicas",sql:`<span class="sc">-- CSV carregado com dbt seed</span>\n<span class="sc">-- 12 musicas com artista, album, duracao, popularidade</span>\nid,titulo,artista_id,album,duracao_ms,popularidade,explicit\n1,Blinding Lights,1,After Hours,200000,97,0\n...`,tests:["Seed — sem testes"],desc:"CSV com 12 musicas. Inclui duracao em ms, popularidade e flag explicit."},
+streams:{title:"seed: streams",sql:`<span class="sc">-- CSV carregado com dbt seed</span>\n<span class="sc">-- 200 streams aleatorios jan-jun 2024</span>\nid,musica_id,artista_id,played_at,popularidade\n1,7,5,2024-03-15 14:30:00,85\n...`,tests:["Seed — sem testes"],desc:"CSV com 200 registros de streams. Gerado aleatoriamente pra simular historico."},
+stg_artistas:{title:"staging: stg_artistas",sql:`<span class="sk">WITH</span> source <span class="sk">AS</span> (\n    <span class="sk">SELECT</span> * <span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'artistas'</span>) }}\n)\n<span class="sk">SELECT</span>\n    id,\n    <span class="sf">LOWER</span>(<span class="sf">TRIM</span>(nome)) <span class="sk">AS</span> nome,\n    <span class="sf">LOWER</span>(<span class="sf">TRIM</span>(genero)) <span class="sk">AS</span> genero,\n    seguidores,\n    <span class="sk">CASE</span>\n        <span class="sk">WHEN</span> seguidores >= <span class="sn">70000000</span> <span class="sk">THEN</span> <span class="ss">'mega'</span>\n        <span class="sk">WHEN</span> seguidores >= <span class="sn">40000000</span> <span class="sk">THEN</span> <span class="ss">'grande'</span>\n        <span class="sk">ELSE</span> <span class="ss">'medio'</span>\n    <span class="sk">END AS</span> tier\n<span class="sk">FROM</span> source`,tests:["✅ id — unique","✅ id — not_null","✅ genero — accepted_values"],desc:"Artistas limpos: lowercase, trimmed, com tier calculado por seguidores."},
+stg_musicas:{title:"staging: stg_musicas",sql:`<span class="sk">WITH</span> source <span class="sk">AS</span> (\n    <span class="sk">SELECT</span> * <span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'musicas'</span>) }}\n)\n<span class="sk">SELECT</span>\n    id, <span class="sf">TRIM</span>(titulo) <span class="sk">AS</span> titulo,\n    artista_id,\n    <span class="sf">ROUND</span>(duracao_ms / <span class="sn">60000.0</span>, <span class="sn">1</span>) <span class="sk">AS</span> duracao_min,\n    popularidade,\n    <span class="sk">CASE</span>\n        <span class="sk">WHEN</span> popularidade >= <span class="sn">95</span> <span class="sk">THEN</span> <span class="ss">'hit'</span>\n        <span class="sk">WHEN</span> popularidade >= <span class="sn">90</span> <span class="sk">THEN</span> <span class="ss">'popular'</span>\n        <span class="sk">ELSE</span> <span class="ss">'conhecida'</span>\n    <span class="sk">END AS</span> categoria\n<span class="sk">FROM</span> source`,tests:["✅ id — unique","✅ id — not_null","✅ artista_id — relationships(stg_artistas)","✅ categoria — accepted_values"],desc:"Musicas com duracao convertida pra minutos e categorizada por popularidade."},
+stg_streams:{title:"staging: stg_streams",sql:`<span class="sk">WITH</span> source <span class="sk">AS</span> (\n    <span class="sk">SELECT</span> * <span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'streams'</span>) }}\n)\n<span class="sk">SELECT</span>\n    id, musica_id, artista_id,\n    played_at::<span class="sf">timestamp</span>,\n    <span class="sf">DATE</span>(played_at) <span class="sk">AS</span> played_date,\n    <span class="sf">EXTRACT</span>(<span class="sk">MONTH FROM</span> played_at) <span class="sk">AS</span> mes\n<span class="sk">FROM</span> source`,tests:["✅ id — unique","✅ id — not_null","✅ musica_id — not_null"],desc:"Streams com timestamps parseados e campos de data extraidos."},
+dim_artistas:{title:"mart: dim_artistas",sql:`<span class="sk">WITH</span> artistas <span class="sk">AS</span> (\n    <span class="sk">SELECT</span> * <span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'stg_artistas'</span>) }}\n),\nstream_metrics <span class="sk">AS</span> (\n    <span class="sk">SELECT</span> artista_id,\n        <span class="sf">COUNT</span>(*) <span class="sk">AS</span> total_streams,\n        <span class="sf">COUNT</span>(<span class="sk">DISTINCT</span> played_date) <span class="sk">AS</span> dias\n    <span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'stg_streams'</span>) }}\n    <span class="sk">GROUP BY</span> artista_id\n)\n<span class="sk">SELECT</span>\n    a.*, sm.total_streams, sm.dias\n<span class="sk">FROM</span> artistas a\n<span class="sk">LEFT JOIN</span> stream_metrics sm\n    <span class="sk">ON</span> a.id = sm.artista_id`,tests:["✅ id — unique","✅ id — not_null"],desc:"Dimensao artistas enriquecida com metricas de streams e musicas."},
+fct_streams:{title:"mart: fct_streams_diarios",sql:`<span class="sk">SELECT</span>\n    s.played_date,\n    s.artista_id,\n    a.nome <span class="sk">AS</span> artista,\n    a.genero,\n    <span class="sf">COUNT</span>(*) <span class="sk">AS</span> total_streams,\n    <span class="sf">ROUND</span>(<span class="sf">AVG</span>(s.popularidade), <span class="sn">1</span>) <span class="sk">AS</span> media_pop\n<span class="sk">FROM</span> {{ <span class="sf">ref</span>(<span class="ss">'stg_streams'</span>) }} s\n<span class="sk">JOIN</span> {{ <span class="sf">ref</span>(<span class="ss">'stg_artistas'</span>) }} a\n    <span class="sk">ON</span> s.artista_id = a.id\n<span class="sk">GROUP BY</span> 1,2,3,4`,tests:["✅ played_date — not_null","✅ total_streams > 0 (custom)"],desc:"Tabela fato: streams agregados por artista por dia. Usada pra analises temporais."}
+};
+
+let cur='stg_artistas',tab='sql';
+function show(id){cur=id;document.querySelectorAll('.node').forEach(n=>n.classList.remove('active'));event.currentTarget.classList.add('active');render()}
+function stab(t){tab=t;document.querySelectorAll('.dtab').forEach(d=>d.classList.toggle('active',d.textContent.toLowerCase().includes(t)));render()}
+function render(){
+  const m=M[cur];
+  document.getElementById('dTitle').textContent=m.title;
+  const b=document.getElementById('dBody');
+  if(tab==='sql')b.innerHTML=m.sql;
+  else if(tab==='tests')b.innerHTML=m.tests.map(t=>`<div class="test-item"><span class="test-pass">●</span><span class="test-name">${t}</span></div>`).join('');
+  else b.innerHTML=`<span style="color:var(--text-dim)">${m.desc}</span>`;
+}
+render();
+</script>
+</body>
+</html>

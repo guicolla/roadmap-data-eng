@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: stg_artistas
+    description: "Artistas limpos e padronizados com tier de seguidores"
+    columns:
+      - name: id
+        description: "ID único do artista"
+        tests:
+          - unique
+          - not_null
+      - name: nome
+        description: "Nome do artista (lowercase, trimmed)"
+        tests:
+          - not_null
+      - name: genero
+        description: "Gênero musical"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['pop', 'rock', 'hip hop', 'r&b', 'k-pop', 'reggaeton']
+      - name: tier
+        tests:
+          - accepted_values:
+              values: ['mega', 'grande', 'medio']
+
+  - name: stg_musicas
+    description: "Músicas com duração convertida e categorização"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+      - name: artista_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_artistas')
+              field: id
+      - name: categoria
+        tests:
+          - accepted_values:
+              values: ['hit', 'popular', 'conhecida', 'nicho']
+
+  - name: stg_streams
+    description: "Streams com timestamps parseados"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+      - name: musica_id
+        tests:
+          - not_null
+      - name: artista_id
+        tests:
+          - not_null

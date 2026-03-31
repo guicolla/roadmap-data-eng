@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: dim_artistas
+    description: "Dimensão de artistas com métricas agregadas de streams e músicas"
+    columns:
+      - name: id
+        description: "ID único do artista"
+        tests:
+          - unique
+          - not_null
+      - name: total_streams
+        description: "Total de streams do artista"
+      - name: media_popularidade
+        description: "Média de popularidade das músicas"
+
+  - name: fct_streams_diarios
+    description: "Tabela fato com streams agregados por artista por dia"
+    columns:
+      - name: played_date
+        tests:
+          - not_null
+      - name: artista_id
+        tests:
+          - not_null
+      - name: total_streams
+        description: "Quantidade de streams naquele dia"
