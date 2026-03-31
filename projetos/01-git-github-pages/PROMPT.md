@@ -8,7 +8,7 @@ Abra o [Claude](https://claude.ai) (gratuito) e cole o prompt abaixo.
 
 ```
 Acesse o código de referência deste portfolio de Data Engineer:
-https://github.com/guicolla/roadmap-data-engineering/tree/main/projetos/01-git-github-pages/solucao
+https://github.com/guicolla/roadmap-data-eng/tree/main/projetos/01-git-github-pages/solucao
 
 Com base nesse exemplo, gere um index.html para MEU portfolio pessoal de Data Engineering.
 

@@ -73,19 +73,19 @@ Cada pasta em `projetos/` tem:
 | # | Projeto | Skills | Status |
 |---|---------|--------|--------|
 | 01 | [Git + GitHub Pages](projetos/01-git-github-pages/) | Git, GitHub, HTML, Prompt IA | 🟢 Disponível |
-| 02 | [Python — ETL de API](projetos/02-python-etl-api/) | Python, requests, pandas, JSON | 🟢 Disponível |
-| 03 | [SQL — Análise de Dados](projetos/03-sql-analise-dados/) | SQL, SQLite, Modelagem, CTEs | 🟢 Disponível |
-| 04 | [Shell — Automação](projetos/04-shell-automacao/) | Bash, Shell, cron, Scripting | 🟢 Disponível |
-| 05 | [Linux — Ambiente](projetos/05-linux-ambiente/) | Linux, CLI, SSH, Permissões | 🟢 Disponível |
+| 02 | [Python — Agenda de Contatos](projetos/02-python-agenda-contatos/) | Python, JSON, CRUD, CLI | 🟢 Disponível |
+| 03 | [SQL — Primeiras Queries](projetos/03-sql-primeiras-queries/) | SQL, SQLite, SELECT, Filtros | 🟢 Disponível |
+| 04 | [Linux + Shell Scripting](projetos/04-linux-shell-codespaces/) | Linux, Bash, Shell, Codespaces | 🟢 Disponível |
+| 05 | [Python — ETL de API](projetos/05-python-etl-api/) | Python, requests, pandas, JSON | 🟢 Disponível |
 
 ### Fase 2 — Core Data Engineering `~2 meses`
 
 | # | Projeto | Skills | Status |
 |---|---------|--------|--------|
-| 06 | [Docker — Stack Local](projetos/06-docker-stack/) | Docker, Compose, Dockerfile | 🟢 Disponível |
-| 07 | [Airflow — Primeira DAG](projetos/07-airflow-dag/) | Airflow, Python, DAGs | 🟢 Disponível |
-| 08 | [dbt — Transformações](projetos/08-dbt-transformacoes/) | dbt, SQL, Testes, Docs | 🟢 Disponível |
-| 09 | [Pipeline Batch Completo](projetos/09-pipeline-batch/) | Integração E2E | 🟢 Disponível |
+| 06 | [SQL — Análise Avançada](projetos/06-sql-analise-avancada/) | SQL, CTEs, Window Functions | 🟢 Disponível |
+| 07 | [Docker — Stack Containerizada](projetos/07-docker-stack/) | Docker, Compose, Dockerfile | 🟢 Disponível |
+| 08 | [Airflow — Primeira DAG](projetos/08-airflow-dag/) | Airflow, Python, DAGs | 🟢 Disponível |
+| 09 | [dbt — Transformações e Testes](projetos/09-dbt-transformacoes/) | dbt, SQL, Testes, Docs | 🟢 Disponível |
 
 ### Fase 3 — Cloud & Produção `~2 meses`
 
@@ -121,14 +121,14 @@ roadmap-data-eng/
 │   │   ├── PROMPT.md                   ← Prompt para gerar portfolio
 │   │   ├── solucao/                    ← Código completo
 │   │   └── dados/                      ← Dados de exemplo
-│   ├── 02-python-etl-api/
-│   ├── 03-sql-analise-dados/
-│   ├── 04-shell-automacao/
-│   ├── 05-linux-ambiente/
-│   ├── 06-docker-stack/
-│   ├── 07-airflow-dag/
-│   ├── 08-dbt-transformacoes/
-│   ├── 09-pipeline-batch/
+│   ├── 02-python-agenda-contatos/
+│   ├── 03-sql-primeiras-queries/
+│   ├── 04-linux-shell-codespaces/
+│   ├── 05-python-etl-api/
+│   ├── 06-sql-analise-avancada/
+│   ├── 07-docker-stack/
+│   ├── 08-airflow-dag/
+│   ├── 09-dbt-transformacoes/
 │   ├── 10-gcp-bigquery/
 │   ├── 11-terraform-iac/
 │   └── 12-pipeline-cloud/

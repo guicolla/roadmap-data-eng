@@ -36,7 +36,7 @@ Use o arquivo `PROMPT.md` para gerar sua pagina de portfolio para este projeto.
 
 ## Recursos
 
-Acesse o [Roadmap Interativo](https://gc-data-academy.github.io/roadmap-data-engineering) e clique neste projeto para ver a lista completa de docs e videos recomendados.
+Acesse o [Roadmap Interativo](https://guicolla.github.io/roadmap-data-eng) e clique neste projeto para ver a lista completa de docs e videos recomendados.
 
 ## Estrutura
 
@@ -50,4 +50,4 @@ Acesse o [Roadmap Interativo](https://gc-data-academy.github.io/roadmap-data-eng
 
 ---
 
-Feito com ☕ por [GC Data Academy](https://gc-data-academy.github.io/roadmap-data-engineering)
+Feito com ☕ por [GC Data Academy](https://guicolla.github.io/roadmap-data-eng)
